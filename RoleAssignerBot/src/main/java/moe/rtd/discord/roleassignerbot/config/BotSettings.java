@@ -3,10 +3,10 @@ package moe.rtd.discord.roleassignerbot.config;
 import java.util.Map;
 
 /**
- * Class responsible for the bot configuration, including loading and saving it.
+ * Class responsible for the bot settings and configuration, including loading and saving it.
  * @author Big J
  */
-public class BotConfiguration {
+public class BotSettings {
 
     /**
      * Object for using as a basic monitor for thread-safely modifying the server map.
@@ -15,7 +15,7 @@ public class BotConfiguration {
     /**
      * Map of all servers which the bot is a member of.
      */
-    private static Map<Long, Object> serverConfigurations;// TODO change Object to server configuration object
+    private static Map<Long, ServerConfiguration> serverConfigurations;
 
     /**
      * Loads the bot configuration.
@@ -33,21 +33,28 @@ public class BotConfiguration {
 
     /**
      * Adds a server to the server map.
+     * @param ID ID of the server to add.
+     * @return The object for the server that was added.
      */
-    public static void addServer(long ID) {
+    public static ServerConfiguration addServer(long ID) {
         synchronized(lockServerConfigurations) {
             if(serverConfigurations == null) throw new IllegalStateException("Configuration is not loaded.");
-            serverConfigurations.put(ID, new Object());// TODO change Object to server configuration object
+            ServerConfiguration server = new ServerConfiguration(ID);
+            serverConfigurations.put(ID, server);
+            return server;
         }
     }
 
     /**
      * Removes a server from the server map.
+     * @param ID ID of the server to remove.
      */
     public static void removeServer(long ID) {
+        ServerConfiguration server;
         synchronized(lockServerConfigurations) {
             if(serverConfigurations == null) throw new IllegalStateException("Configuration is not loaded.");
-            serverConfigurations.remove(ID);
+            server = serverConfigurations.remove(ID);
         }
+        server.terminate();
     }
 }
