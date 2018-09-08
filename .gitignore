@@ -1,2 +1,6 @@
-# IntelliJ workspace configuration folder
-/RoleAssignerBot/.idea
+# Ignore all files in RoleAssignerBot
+RoleAssignerBot/*
+
+# Un-ignore source code and maven POM
+!RoleAssignerBot/src/
+!RoleAssignerBot/pom.xml
