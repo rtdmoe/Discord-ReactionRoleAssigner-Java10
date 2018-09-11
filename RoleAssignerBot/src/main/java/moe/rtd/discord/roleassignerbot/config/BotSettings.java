@@ -9,7 +9,7 @@ import java.util.Map;
 public class BotSettings {
 
     /**
-     * Object for using as a basic monitor for thread-safely modifying the server map.
+     * Object for using as a basic monitor for synchronizing when modifying the server map.
      */
     private static final Object lockServerConfigurations = new Object();
     /**
@@ -32,24 +32,43 @@ public class BotSettings {
     }
 
     /**
-     * Adds a server to the server map.
-     * @param ID ID of the server to add.
-     * @return The object for the server that was added.
+     * Returns the {@link ServerConfiguration} with the specified ID, or null if it isn't mapped.
+     * @param ID ID of the server to return.
+     * @return The server
      */
-    public static ServerConfiguration addServer(long ID) {
+    public static ServerConfiguration getServer(long ID) {
         synchronized(lockServerConfigurations) {
             if(serverConfigurations == null) throw new IllegalStateException("Configuration is not loaded.");
-            ServerConfiguration server = new ServerConfiguration(ID);
-            serverConfigurations.put(ID, server);
-            return server;
+            return serverConfigurations.get(ID);
         }
     }
 
     /**
-     * Removes a server from the server map.
-     * @param ID ID of the server to remove.
+     * Adds a {@link ServerConfiguration} to the server map, if necessary.
+     * @param ID ID of the server to add.
+     * @return The {@link ServerConfiguration} that was added if necessary, or the value corresponding to the ID
+     * if the server is already mapped.
      */
-    public static void removeServer(long ID) {
+    public static ServerConfiguration addServer(long ID) {
+        synchronized(lockServerConfigurations) {
+            if(serverConfigurations == null) throw new IllegalStateException("Configuration is not loaded.");
+            ServerConfiguration gotSC = serverConfigurations.get(ID);
+            if(gotSC == null) {
+                ServerConfiguration server = new ServerConfiguration(ID);
+                serverConfigurations.put(ID, server);
+                return server;
+            } else {
+                return gotSC;
+            }
+        }
+    }
+
+    /**
+     * Removes a {@link ServerConfiguration} from the server map.
+     * @param ID ID of the server to remove.
+     * @throws NullPointerException if the server is not mapped.
+     */
+    public static void removeServer(long ID) throws NullPointerException {
         ServerConfiguration server;
         synchronized(lockServerConfigurations) {
             if(serverConfigurations == null) throw new IllegalStateException("Configuration is not loaded.");
