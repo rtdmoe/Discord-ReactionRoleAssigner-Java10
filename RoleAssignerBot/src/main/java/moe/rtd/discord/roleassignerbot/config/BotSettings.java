@@ -34,7 +34,7 @@ public class BotSettings {
     /**
      * Returns the {@link ServerConfiguration} with the specified ID, or null if it isn't mapped.
      * @param ID ID of the server to return.
-     * @return The server
+     * @return The requested server, or null if it isn't mapped.
      */
     public static ServerConfiguration getServer(long ID) {
         synchronized(lockServerConfigurations) {
@@ -52,9 +52,9 @@ public class BotSettings {
     public static ServerConfiguration addServer(long ID) {
         synchronized(lockServerConfigurations) {
             if(serverConfigurations == null) throw new IllegalStateException("Configuration is not loaded.");
-            ServerConfiguration gotSC = serverConfigurations.get(ID);
+            var gotSC = serverConfigurations.get(ID);
             if(gotSC == null) {
-                ServerConfiguration server = new ServerConfiguration(ID);
+                var server = new ServerConfiguration(ID);
                 serverConfigurations.put(ID, server);
                 return server;
             } else {
@@ -66,14 +66,13 @@ public class BotSettings {
     /**
      * Removes a {@link ServerConfiguration} from the server map.
      * @param ID ID of the server to remove.
-     * @throws NullPointerException if the server is not mapped.
      */
-    public static void removeServer(long ID) throws NullPointerException {
+    public static void removeServer(long ID) {
         ServerConfiguration server;
         synchronized(lockServerConfigurations) {
             if(serverConfigurations == null) throw new IllegalStateException("Configuration is not loaded.");
             server = serverConfigurations.remove(ID);
         }
-        server.terminate();
+        if(server != null) server.terminate();
     }
 }
