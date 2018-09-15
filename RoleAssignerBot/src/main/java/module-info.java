@@ -1,4 +1,6 @@
 /**
  * Contains the entire RoleAssignerBot program.
  */
-module RoleAssignerBot {}
+module RoleAssignerBot {
+    requires Discord4J;
+}

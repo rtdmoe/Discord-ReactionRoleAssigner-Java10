@@ -1,19 +1,21 @@
 package moe.rtd.discord.roleassignerbot.config;
 
+import moe.rtd.discord.roleassignerbot.reaction.ReactionHandler;
+
 import java.util.Map;
 import java.util.TreeMap;
 
 /**
  * Class responsible for one Discord message per instance.
- * Stores the TODO for the message it is responsible for.
+ * Stores the reaction handler and configuration for the message it is responsible for.
  * @author Big J
  */
 public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration> implements Terminable {
 
     /**
-     * TODO
+     * @see ReactionHandler
      */
-    private final Object TODO;// TODO
+    private final ReactionHandler reactionHandler;
     /**
      * Whether or not this instance has been terminated.
      */
@@ -27,14 +29,14 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
     private final Map<Long, Long> configuration;
 
     /**
-     * Instantiates this {@link MessageConfiguration}; sets up the TODO.
+     * Instantiates this {@link MessageConfiguration}; sets up the reaction handler.
      * @param ID The ID of the channel.
      * @param parent The channel that this message belongs to.
      */
     MessageConfiguration(long ID, ChannelConfiguration parent) {
         super(ID, parent);
         configuration = new TreeMap<>();
-        TODO = new Object();// TODO
+        reactionHandler = new ReactionHandler();
     }
 
     /**
@@ -131,11 +133,11 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
     @Override
     public void terminate() {
         if(terminated) return;
-        synchronized(TODO) {
+        synchronized(reactionHandler) {
             if(terminated) return;
             terminated = true;
+            reactionHandler.terminate();
             getParent().removeMessage(getID());
-            // TODO
         }
         synchronized(configuration) {
             configuration.clear();
