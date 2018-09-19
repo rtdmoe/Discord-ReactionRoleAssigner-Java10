@@ -36,7 +36,7 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
     MessageConfiguration(long ID, ChannelConfiguration parent) {
         super(ID, parent);
         configuration = new TreeMap<>();
-        reactionHandler = new ReactionHandler();
+        reactionHandler = new ReactionHandler(this);
     }
 
     /**
@@ -125,6 +125,13 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
             if(terminated) return false;
             return configuration.containsValue(EMOTE);
         }
+    }
+
+    /**
+     * @return The reaction handler which handles reactions for this message.
+     */
+    public ReactionHandler getReactionHandler() {
+        return reactionHandler;
     }
 
     /**
