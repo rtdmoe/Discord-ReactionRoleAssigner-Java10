@@ -1,13 +1,13 @@
 package moe.rtd.discord.roleassignerbot.reaction;
 
-import moe.rtd.discord.roleassignerbot.DiscordConnection;
+import moe.rtd.discord.roleassignerbot.discord.DiscordConnection;
 import moe.rtd.discord.roleassignerbot.config.MessageConfiguration;
-import moe.rtd.discord.roleassignerbot.config.Terminable;
-import moe.rtd.discord.roleassignerbot.util.DataFormatter;
+import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
+import moe.rtd.discord.roleassignerbot.misc.DataFormatter;
+import moe.rtd.discord.roleassignerbot.interfaces.QueueConsumer;
 import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionAddEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionRemoveEvent;
-import sx.blah.discord.handle.obj.IMessage;
 import sx.blah.discord.handle.obj.IReaction;
 import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
@@ -20,7 +20,7 @@ import java.util.concurrent.BlockingQueue;
  * Processes the reaction events for the message it's assigned to.
  * @author Big J
  */
-public class ReactionHandler implements Runnable, Terminable {
+public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, Terminable {
 
     /**
      * Queue for storing reaction events to be processed.
@@ -66,15 +66,12 @@ public class ReactionHandler implements Runnable, Terminable {
     public void run() {
         process();
         System.out.println("Reaction handler for message " + DataFormatter.format(messageConfiguration) + " has started."); // TODO replace with log4j
-        kill: while(!terminated) {
-            while(!Thread.interrupted()) {
-                if(terminated) break kill;
-                try {
-                    handle(queue.take());
-                } catch (InterruptedException e) {
-                    System.err.println("Reaction handler for message " + DataFormatter.format(messageConfiguration) + " has been interrupted."); // TODO replace with log4j
-                    break;
-                }
+        while(!terminated) {
+            try {
+                handle(queue.take());
+            } catch(InterruptedException e) {
+                System.err.println("Reaction handler for message " + DataFormatter.format(messageConfiguration) + " has been interrupted."); // TODO replace with log4j
+                if(terminated) break;
             }
         }
         System.out.println("Reaction handler for message " + DataFormatter.format(messageConfiguration) + " has been terminated."); // TODO replace with log4j
@@ -143,6 +140,7 @@ public class ReactionHandler implements Runnable, Terminable {
     /**
      * Puts an event at the end of the queue.
      * @param reactionEvent The event to add to the queue.
+     * @throws InterruptedException If the current thread is interrupted when waiting for a free space in the queue.
      */
     public void accept(ReactionEvent reactionEvent) throws InterruptedException {
         if(terminated) return;
@@ -162,7 +160,7 @@ public class ReactionHandler implements Runnable, Terminable {
             queue.clear();
             try {
                 thread.join();
-            } catch (InterruptedException e) {
+            } catch(InterruptedException e) {
                 throw new RuntimeException("Terminator has been interrupted.");
             }
         }

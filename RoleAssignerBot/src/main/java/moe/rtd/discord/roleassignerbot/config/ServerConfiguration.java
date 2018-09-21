@@ -1,11 +1,19 @@
 package moe.rtd.discord.roleassignerbot.config;
 
+import javafx.util.Pair;
+import moe.rtd.discord.roleassignerbot.filter.ServerReactionFilter;
+import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
+
+import java.io.Serializable;
+import java.util.Arrays;
 import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 /**
  * Class responsible for one Discord server per instance.
  * Stores all channel configuration for the server it is responsible for.
+ * Also stores all properties for this server.
  * @author Big J
  */
 public class ServerConfiguration extends Identifiable implements Terminable {
@@ -20,12 +28,74 @@ public class ServerConfiguration extends Identifiable implements Terminable {
     private volatile boolean terminated = false;
 
     /**
+     * The reaction event filter for this instance.
+     */
+    private final ServerReactionFilter reactionFilter;
+
+    /**
+     * Map of all of the bot properties for this server.
+     */
+    private final Map<Properties, Serializable> properties;
+
+    /**
+     * Enum containing all properties and their default values.
+     */
+    public enum Properties {
+        AUTHORIZED_ROLE(null);
+
+        /**
+         * The default value of this property.
+         */
+        private final Serializable defaultValue;
+
+        /**
+         * @param defaultValue The default value of this property.
+         */
+        Properties(Serializable defaultValue) {
+            this.defaultValue = defaultValue;
+        }
+
+        /**
+         * @return The default value for this property.
+         */
+        public Serializable getDefaultValue() {
+            return defaultValue;
+        }
+    }
+
+    /**
      * Instantiates this {@link ServerConfiguration}; sets up the map.
      * @param ID The ID of the server.
      */
     ServerConfiguration(long ID) {
         super(ID);
-        channelConfigurations = new WeakHashMap<>();
+        this.channelConfigurations = new TreeMap<>();
+        this.properties = new TreeMap<>(
+                Arrays.stream(Properties.values()).collect(Collectors.toMap(e -> e, Properties::getDefaultValue)));
+        this.reactionFilter = new ServerReactionFilter(this);
+    }
+
+    /**
+     * @return The value of the property with the key {@code K}.
+     */
+    public Serializable getProperty(Properties K) {
+        synchronized(properties) {
+            return properties.get(K);
+        }
+    }
+
+    /**
+     * Sets the value of the property with the key {@code K} to {@code V}.
+     * @throws NullPointerException If the key is null.
+     * @throws IllegalArgumentException If the .
+     */
+    public void setProperty(Properties K, Object V) {
+        if(K == null) throw new NullPointerException("The key cannot be null.");
+        if(!(V instanceof Serializable && V.getClass().isInstance(K.getDefaultValue().getClass())))
+            throw new IllegalArgumentException("Wrong value type for this property.");
+        synchronized(properties) {
+            properties.put(K, (Serializable) V);
+        }
     }
 
     /**
@@ -75,6 +145,13 @@ public class ServerConfiguration extends Identifiable implements Terminable {
             }
         }
         if(channel != null) channel.terminate();
+    }
+
+    /**
+     * @return The {@link ServerReactionFilter} for this instance.
+     */
+    public ServerReactionFilter getReactionFilter() {
+        return reactionFilter;
     }
 
     /**

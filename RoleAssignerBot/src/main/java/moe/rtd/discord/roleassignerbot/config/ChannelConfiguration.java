@@ -1,7 +1,10 @@
 package moe.rtd.discord.roleassignerbot.config;
 
+import moe.rtd.discord.roleassignerbot.filter.ChannelReactionFilter;
+import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
+
 import java.util.Map;
-import java.util.WeakHashMap;
+import java.util.TreeMap;
 
 /**
  * Class responsible for one Discord channel per instance.
@@ -20,13 +23,19 @@ public class ChannelConfiguration extends IdentifiableChild<ServerConfiguration>
     private volatile boolean terminated = false;
 
     /**
+     * The reaction event filter for this instance.
+     */
+    private final ChannelReactionFilter reactionFilter;
+
+    /**
      * Instantiates this {@link ChannelConfiguration}; sets up the map.
      * @param ID The ID of the channel.
      * @param parent The server that this channel belongs to.
      */
     ChannelConfiguration(long ID, ServerConfiguration parent) {
         super(ID, parent);
-        messageConfigurations = new WeakHashMap<>();
+        messageConfigurations = new TreeMap<>();
+        reactionFilter = new ChannelReactionFilter(this);
     }
 
     /**
@@ -76,6 +85,13 @@ public class ChannelConfiguration extends IdentifiableChild<ServerConfiguration>
             }
         }
         if(message != null) message.terminate();
+    }
+
+    /**
+     * @return The {@link ChannelReactionFilter} for this instance.
+     */
+    public ChannelReactionFilter getReactionFilter() {
+        return reactionFilter;
     }
 
     /**

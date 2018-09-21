@@ -3,4 +3,5 @@
  */
 module RoleAssignerBot {
     requires Discord4J;
+    requires javafx.swing;
 }

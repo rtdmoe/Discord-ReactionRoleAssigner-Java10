@@ -1,4 +1,4 @@
-package moe.rtd.discord.roleassignerbot.config;
+package moe.rtd.discord.roleassignerbot.interfaces;
 
 /**
  * Similar to {@link java.io.Closeable}, but for non-I/O resources i.e. {@link Thread}s and memory.

@@ -1,5 +1,14 @@
 package moe.rtd.discord.roleassignerbot.config;
 
+import org.xml.sax.SAXException;
+
+import javax.xml.XMLConstants;
+import javax.xml.transform.stream.StreamSource;
+import javax.xml.validation.SchemaFactory;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URISyntaxException;
 import java.util.Map;
 
 /**
@@ -9,13 +18,25 @@ import java.util.Map;
 public class BotSettings {
 
     /**
-     * Object for using as a basic monitor for synchronizing when modifying the server map.
+     * Object for synchronizing server map modifications.
      */
     private static final Object lockServerConfigurations = new Object();
     /**
      * Map of all servers which the bot is a member of.
      */
     private static Map<Long, ServerConfiguration> serverConfigurations;
+
+    /**
+     * @return The save file which contains .
+     */
+    private static File getSaveFile() {
+        try {
+            var jar = new File(BotSettings.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+            return new File(jar.getPath().replaceFirst("(.jar)$", ".xml"));
+        } catch (URISyntaxException e) {
+            throw new RuntimeException("Failed to locate save file.", e);
+        }
+    }
 
     /**
      * Loads the bot configuration.
@@ -28,6 +49,36 @@ public class BotSettings {
      * Saves the bot configuration.
      */
     public static void saveConfiguration() {
+        // TODO
+    }
+
+    /**
+     * Validates an XML file against the save file schema.
+     */
+    private static void validate(InputStream xml) throws SAXException, IOException {
+        SchemaFactory.newInstance(XMLConstants.W3C_XML_SCHEMA_NS_URI)
+                .newSchema(new StreamSource(BotSettings.class.getResourceAsStream("/res/save_file.xsd")))
+                .newValidator().validate(new StreamSource(xml));
+    }
+
+    /**
+     * Starts all of the event handlers.
+     */
+    public static void start() {
+        // TODO
+    }
+
+    /**
+     * Stops all of the event handlers.
+     */
+    public static void stop() {
+        // TODO
+    }
+
+    /**
+     * Clears all loaded configuration data and stops any running threads in the process.
+     */
+    public static void destroy() {
         // TODO
     }
 

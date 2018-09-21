@@ -1,4 +1,4 @@
-package moe.rtd.discord.roleassignerbot.util;
+package moe.rtd.discord.roleassignerbot.misc;
 
 import moe.rtd.discord.roleassignerbot.config.Identifiable;
 import moe.rtd.discord.roleassignerbot.config.IdentifiableChild;
