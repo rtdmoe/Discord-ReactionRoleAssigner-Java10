@@ -8,6 +8,7 @@ import java.io.Serializable;
 import java.util.Arrays;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
 import java.util.stream.Collectors;
 
 /**
@@ -41,7 +42,7 @@ public class ServerConfiguration extends Identifiable implements Terminable {
      * Enum containing all properties and their default values.
      */
     public enum Properties {
-        AUTHORIZED_ROLE(null);
+        AUTHORIZED_ROLE(0L);
 
         /**
          * The default value of this property.
@@ -70,8 +71,9 @@ public class ServerConfiguration extends Identifiable implements Terminable {
     ServerConfiguration(long ID) {
         super(ID);
         this.channelConfigurations = new TreeMap<>();
-        this.properties = new TreeMap<>(
-                Arrays.stream(Properties.values()).collect(Collectors.toMap(e -> e, Properties::getDefaultValue)));
+        this.properties = new TreeMap<>(Arrays.stream(Properties.values()).collect(Collectors.toMap(
+                e -> e,
+                Properties::getDefaultValue)));
         this.reactionFilter = new ServerReactionFilter(this);
     }
 
@@ -89,12 +91,24 @@ public class ServerConfiguration extends Identifiable implements Terminable {
      * @throws NullPointerException If the key is null.
      * @throws IllegalArgumentException If the .
      */
-    public void setProperty(Properties K, Object V) {
+    public void setProperty(Properties K, Serializable V) {
         if(K == null) throw new NullPointerException("The key cannot be null.");
-        if(!(V instanceof Serializable && V.getClass().isInstance(K.getDefaultValue().getClass())))
+        if(V.getClass().isPrimitive()) {
+            if(!K.getDefaultValue().getClass().isPrimitive())
+                throw new IllegalArgumentException("Wrong value type for this property.");
+        } else if(!(K.getDefaultValue().getClass().isAssignableFrom(V.getClass())))
             throw new IllegalArgumentException("Wrong value type for this property.");
         synchronized(properties) {
-            properties.put(K, (Serializable) V);
+            properties.put(K, K.getDefaultValue().getClass().cast(V));
+        }
+    }
+
+    /**
+     * @see Map#forEach(BiConsumer)
+     */
+    void forEachProperty(BiConsumer<Properties, Serializable> action) {
+        synchronized(properties) {
+            properties.forEach(action);
         }
     }
 
@@ -148,6 +162,15 @@ public class ServerConfiguration extends Identifiable implements Terminable {
     }
 
     /**
+     * @see Map#forEach(BiConsumer)
+     */
+    public void forEach(BiConsumer<? super Long, ? super ChannelConfiguration> action) {
+        synchronized(channelConfigurations) {
+            channelConfigurations.forEach(action);
+        }
+    }
+
+    /**
      * @return The {@link ServerReactionFilter} for this instance.
      */
     public ServerReactionFilter getReactionFilter() {
@@ -164,6 +187,7 @@ public class ServerConfiguration extends Identifiable implements Terminable {
             if(terminated) return;
             terminated = true;
             BotSettings.removeServer(getID());
+            reactionFilter.terminate();
             channelConfigurations.forEach((ID, channelConfiguration) -> channelConfiguration.terminate());
             channelConfigurations.clear();
         }

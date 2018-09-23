@@ -7,6 +7,7 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.obj.ActivityType;
 import sx.blah.discord.handle.obj.StatusType;
+import sx.blah.discord.util.DiscordException;
 
 import java.lang.reflect.Modifier;
 
@@ -42,16 +43,23 @@ public class DiscordConnection {
             // Register listeners
             var ed = client.getDispatcher();
 
+            System.out.println("Registering listeners."); // TODO replace with log4j
             for(var f : Listeners.class.getDeclaredFields()) {
+                System.out.print(f.getName());
                 if(Modifier.isStatic(f.getModifiers())) {
+                    System.out.print(" static");
                     if(f.canAccess(null)) {
-                        if(f.getType().isInstance(IListener.class)) {
+                        System.out.print(" accessible");
+                        if(IListener.class.isAssignableFrom(f.getType())) {
+                            System.out.print(" listener");
+                            System.out.println();
                             try {
                                 ed.registerListener(f.get(null));
+                                System.out.println("Registered listener \"" + f.getName() + "\"."); // TODO replace with log4j
                             } catch(IllegalAccessException e) {
                                 e.printStackTrace(); // TODO replace with log4j
                             }
-                        }
+                        } else System.out.println();
                     }
                 }
             }
@@ -59,13 +67,7 @@ public class DiscordConnection {
             // Log in and wait until ready
             client.login();
 
-            while(!client.isReady()) {
-                try {
-                    Thread.sleep(MiscConstants.ARBITRARY_SLEEP_DURATION);
-                } catch(InterruptedException e) {
-                    e.printStackTrace(); // TODO replace with log4j
-                }
-            }
+            waitForConnection();
 
             // Change presence to show the bot is setting up
             client.changePresence(StatusType.IDLE, ActivityType.PLAYING, "setting up...");
@@ -79,10 +81,29 @@ public class DiscordConnection {
         synchronized(lockClient) {
 
             // Logs out on all shards
-            client.logout();
+            try {
+                client.logout();
+            } catch(Exception e) {
+                e.printStackTrace(); // TODO replace with log4j
+            }
 
             // Removes client reference
             client = null;
+        }
+    }
+
+    /**
+     * Waits until the connection is complete.
+     */
+    public static void waitForConnection() {
+        synchronized(lockClient) {
+            while(!(client.isReady() && client.isLoggedIn())) {
+                try {
+                    Thread.sleep(MiscConstants.ARBITRARY_SLEEP_DURATION);
+                } catch(InterruptedException e) {
+                    e.printStackTrace(); // TODO replace with log4j
+                }
+            }
         }
     }
 

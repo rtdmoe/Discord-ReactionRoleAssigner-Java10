@@ -5,6 +5,7 @@ import moe.rtd.discord.roleassignerbot.reaction.ReactionHandler;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
 
 /**
  * Class responsible for one Discord message per instance.
@@ -129,6 +130,15 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
     }
 
     /**
+     * @see Map#forEach(BiConsumer)
+     */
+    public void forEach(BiConsumer<Long, Long> action) {
+        synchronized(configuration) {
+            configuration.forEach(action);
+        }
+    }
+
+    /**
      * @return The reaction handler which handles reactions for this message.
      */
     public ReactionHandler getReactionHandler() {
@@ -144,8 +154,8 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
         synchronized(reactionHandler) {
             if(terminated) return;
             terminated = true;
-            reactionHandler.terminate();
             getParent().removeMessage(getID());
+            reactionHandler.terminate();
         }
         synchronized(configuration) {
             configuration.clear();

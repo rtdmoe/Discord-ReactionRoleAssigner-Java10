@@ -19,7 +19,7 @@ class CommandHandler implements Runnable {
     /**
      * Thread for processing events.
      */
-    private static final Thread thread = new Thread(new CommandFilter());
+    private static final Thread thread = new Thread(new CommandHandler());
 
     /**
      * Whether or not this class has been stopped.
@@ -32,15 +32,24 @@ class CommandHandler implements Runnable {
     @Override
     public void run() {
         // TODO add log4j
+        System.out.println("Command handler starting.");
         while(!stopped) {
             MessageReceivedEvent e;
             try {
                 e = queue.take();
+                System.out.println("Handling command \"" + e.getMessage() + "\".");
                 try {
                     var s = e.getMessage().getContent();
-                    Commands.valueOf(s.substring(0, s.indexOf(' '))).getCommand().execute(e);
+                    System.out.println("Message content: \"" + s + "\".");
+                    s = s.replace("<@" + e.getClient().getOurUser().getLongID() + ">", "");
+                    System.out.println("Command content: \"" + s + "\".");
+                    while(s.startsWith(" ") || s.startsWith("\n")) s = s.substring(1);
+                    while(s.endsWith(" ") || s.endsWith("\n")) s = s.substring(0, s.length()-1);
+                    System.out.println("Modified content: \"" + s + "\".");
+                    String m = Commands.valueOf(s.substring(0, s.indexOf(' ')).toUpperCase()).execute(e);
+                    if(m != null) e.getChannel().sendMessage(e.getAuthor().mention() + " " + m);
                 } catch(CommandSyntaxException cse) {
-                    e.getChannel().sendMessage("Syntax Error: " + cse.getMessage());
+                    e.getChannel().sendMessage(e.getAuthor().mention() + " Syntax Error: " + cse.getMessage());
                 }
             } catch(InterruptedException ie) {
                 ie.printStackTrace(); // TODO replace with log4j
@@ -55,6 +64,7 @@ class CommandHandler implements Runnable {
      */
     static void accept(MessageReceivedEvent messageReceivedEvent) throws InterruptedException {
         if(stopped) return;
+        System.out.println("Filtered command \"" + messageReceivedEvent.getMessage() + "\"."); // TODO replace with log4j
         queue.put(messageReceivedEvent);
     }
 

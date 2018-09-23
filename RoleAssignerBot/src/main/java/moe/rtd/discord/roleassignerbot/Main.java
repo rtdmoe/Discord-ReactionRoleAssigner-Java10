@@ -21,6 +21,7 @@ public class Main {
     public static void main(String[] args) {
 
         Runtime.getRuntime().addShutdownHook(new Thread(Main::exit)); // Sets up shutdown hook first in case the program exits before it is fully setup.
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {e.printStackTrace();Runtime.getRuntime().halt(-1);}); // Program crashes on an uncaught exception.
 
         GUI.setup(); // Sets up the GUI.
         BotSettings.loadConfiguration(); // Loads the saved message configuration so that events aren't missed.
@@ -37,6 +38,7 @@ public class Main {
      */
     private static void exit() {
 
+        DiscordConnection.waitForConnection();
         DiscordConnection.getClient().changePresence(StatusType.DND, ActivityType.PLAYING, "shutting down..."); // Change bot presence to show that it's shutting down.
 
         BotSettings.stop(); // Stops the event handlers so that the event handling isn't interrupted by the closing connection.

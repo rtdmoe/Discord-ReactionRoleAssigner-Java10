@@ -14,5 +14,5 @@ interface Command {
      * @return The result of the execution.
      * @throws CommandSyntaxException If there is a syntax error in the command.
      */
-    String execute(MessageReceivedEvent messageReceivedEvent) throws CommandSyntaxException;
+    String execute(MessageReceivedEvent messageReceivedEvent);
 }

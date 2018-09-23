@@ -35,13 +35,16 @@ public class CommandFilter implements Runnable {
     @Override
     public void run() {
         // TODO add log4j
+        System.out.println("Command filter starting.");
         while(!stopped) {
             MessageReceivedEvent e;
             try {
                 e = queue.take();
-                if(e.getAuthor().hasRole(e.getGuild().getRoleByID((Long) BotSettings.getServer(
-                        e.getGuild().getLongID()).getProperty(ServerConfiguration.Properties.AUTHORIZED_ROLE)))
-                        || e.getAuthor().getPermissionsForGuild(e.getGuild()).contains(Permissions.ADMINISTRATOR)) {
+                var s = BotSettings.getServer(e.getGuild().getLongID());
+                if(e.getAuthor().getPermissionsForGuild(e.getGuild()).contains(Permissions.ADMINISTRATOR) ||
+                        ((s != null) &&
+                        e.getAuthor().hasRole(e.getGuild().getRoleByID((Long)
+                        s.getProperty(ServerConfiguration.Properties.AUTHORIZED_ROLE))))) {
                     CommandHandler.accept(e);
                 }
             } catch(InterruptedException ie) {
@@ -57,6 +60,7 @@ public class CommandFilter implements Runnable {
      */
     public static void accept(MessageReceivedEvent messageReceivedEvent) throws InterruptedException {
         if(stopped) return;
+        System.out.println("Received command \"" + messageReceivedEvent.getMessage() + "\"."); // TODO replace with log4j
         queue.put(messageReceivedEvent);
     }
 

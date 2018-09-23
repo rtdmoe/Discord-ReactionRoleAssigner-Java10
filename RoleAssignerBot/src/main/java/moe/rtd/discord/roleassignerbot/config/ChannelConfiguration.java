@@ -5,6 +5,7 @@ import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
 
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
 
 /**
  * Class responsible for one Discord channel per instance.
@@ -88,6 +89,15 @@ public class ChannelConfiguration extends IdentifiableChild<ServerConfiguration>
     }
 
     /**
+     * @see Map#forEach(BiConsumer)
+     */
+    public void forEach(BiConsumer<? super Long, ? super MessageConfiguration> action) {
+        synchronized(messageConfigurations) {
+            messageConfigurations.forEach(action);
+        }
+    }
+
+    /**
      * @return The {@link ChannelReactionFilter} for this instance.
      */
     public ChannelReactionFilter getReactionFilter() {
@@ -104,6 +114,7 @@ public class ChannelConfiguration extends IdentifiableChild<ServerConfiguration>
             if(terminated) return;
             terminated = true;
             getParent().removeChannel(getID());
+            reactionFilter.terminate();
             messageConfigurations.forEach((ID, messageConfigurations) -> messageConfigurations.terminate());
             messageConfigurations.clear();
         }

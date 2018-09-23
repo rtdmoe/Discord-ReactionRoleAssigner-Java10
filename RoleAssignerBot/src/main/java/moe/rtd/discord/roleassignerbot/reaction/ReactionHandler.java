@@ -70,7 +70,7 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
             try {
                 handle(queue.take());
             } catch(InterruptedException e) {
-                System.err.println("Reaction handler for message " + DataFormatter.format(messageConfiguration) + " has been interrupted."); // TODO replace with log4j
+                System.out.println("Reaction handler for message " + DataFormatter.format(messageConfiguration) + " has been interrupted."); // TODO replace with log4j
                 if(terminated) break;
             }
         }
