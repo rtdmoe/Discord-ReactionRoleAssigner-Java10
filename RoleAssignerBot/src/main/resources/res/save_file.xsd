@@ -6,7 +6,7 @@
 
     <xs:simpleType name="emote">
         <xs:restriction base="xs:token">
-            <xs:pattern value="((.)|((&#60;:)[a-zA-Z0-9_]+(:)[0-9]+(&#62;)))"/>
+            <xs:pattern value="((.)|((&#60;(a)?:)[a-zA-Z0-9_]+(:)[0-9]+(&#62;)))"/>
         </xs:restriction>
     </xs:simpleType>
 

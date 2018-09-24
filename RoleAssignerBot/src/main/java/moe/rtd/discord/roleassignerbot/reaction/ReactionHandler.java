@@ -92,8 +92,8 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
         List<IReaction> reactions = message.getReactions();
 
         for(IReaction r : reactions) {
-            if(messageConfiguration.isUsed(r.getEmoji().getLongID())) {
-                IRole ROLE = message.getGuild().getRoleByID(messageConfiguration.getRole(r.getEmoji().getLongID()));
+            if(messageConfiguration.isUsed(r.getEmoji().toString())) {
+                IRole ROLE = message.getGuild().getRoleByID(messageConfiguration.getRole(r.getEmoji().toString()));
                 // FOR EACH CONFIGURED REACTION:
 
                 for(IUser u : r.getUsers()) {
@@ -119,7 +119,7 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
         if(reactionEvent instanceof ReactionAddEvent) {
             var e = (ReactionAddEvent) reactionEvent;
 
-            long EMOTE = e.getReaction().getEmoji().getLongID();
+            String EMOTE = e.getReaction().getEmoji().toString();
             if(messageConfiguration.isUsed(EMOTE)) {
                 long ROLE = messageConfiguration.getRole(EMOTE);
                 e.getUser().addRole(e.getGuild().getRoleByID(ROLE));
@@ -128,7 +128,7 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
         } else if(reactionEvent instanceof ReactionRemoveEvent) {
             var e = (ReactionRemoveEvent) reactionEvent;
 
-            long EMOTE = e.getReaction().getEmoji().getLongID();
+            String EMOTE = e.getReaction().getEmoji().toString();
             if(messageConfiguration.isUsed(EMOTE)) {
                 long ROLE = messageConfiguration.getRole(EMOTE);
                 e.getUser().removeRole(e.getGuild().getRoleByID(ROLE));
