@@ -38,13 +38,18 @@ public class Main {
      */
     private static void exit() {
 
-        DiscordConnection.getClient().changePresence(StatusType.DND, ActivityType.PLAYING, "shutting down..."); // Change bot presence to show that it's shutting down.
-
         BotSettings.stop(); // Stops the event handlers so that the event handling isn't interrupted by the closing connection.
-        DiscordConnection.stop(); // Disconnects from Discord, so that the bot status is quickly set to offline.
         CommandFilter.stop(); // Stops the command filter and handler.
         BotSettings.saveConfiguration(); // Saves the configuration to the save file.
         BotSettings.destroy(); // Clears all loaded configuration data and stops any running threads in the process.
         GUI.close(); // Closes the GUI.
+    }
+
+    /**
+     * Shuts down the program normally.
+     */
+    public static void exit(int status) {
+        DiscordConnection.getClient().changePresence(StatusType.DND, ActivityType.PLAYING, "shutting down..."); // Change bot presence to show that it's shutting down.
+        System.exit(status);
     }
 }

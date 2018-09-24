@@ -75,24 +75,6 @@ public class DiscordConnection {
     }
 
     /**
-     * Logs out and removes the client reference.
-     */
-    public static void stop() {
-        synchronized(lockClient) {
-
-            // Logs out on all shards
-            try {
-                client.logout();
-            } catch(Exception e) {
-                e.printStackTrace(); // TODO replace with log4j
-            }
-
-            // Removes client reference
-            client = null;
-        }
-    }
-
-    /**
      * Waits until the connection is complete.
      */
     public static void waitForConnection() {
