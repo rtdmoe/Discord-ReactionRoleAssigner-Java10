@@ -1,6 +1,5 @@
 package moe.rtd.discord.roleassignerbot.config;
 
-import javafx.util.Pair;
 import moe.rtd.discord.roleassignerbot.filter.ServerReactionFilter;
 import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
 
@@ -37,6 +36,13 @@ public class ServerConfiguration extends Identifiable implements Terminable {
      * Map of all of the bot properties for this server.
      */
     private final Map<Properties, Serializable> properties;
+
+    /**
+     * Used for breaking forEach loops.
+     * Kind of a hack, but meh.
+     * TODO remove this hack at some point
+     */
+    private static final class ForEachBreaker extends RuntimeException {private ForEachBreaker(){super();}}
 
     /**
      * Enum containing all properties and their default values.
@@ -166,6 +172,21 @@ public class ServerConfiguration extends Identifiable implements Terminable {
             }
         }
         if(channel != null) channel.terminate();
+    }
+
+    /**
+     * @param ROLE The role to search for.
+     * @return Whether or not the role is configured on this server.
+     */
+    public boolean isRoleConfigured(long ROLE) {
+        try {
+            forEach((cID, cc) -> cc.forEach((mID, mc) -> {
+                if(mc.isMapped(ROLE)) throw new ForEachBreaker();
+            }));
+        } catch(ForEachBreaker e) {
+            return true;
+        }
+        return false;
     }
 
     /**

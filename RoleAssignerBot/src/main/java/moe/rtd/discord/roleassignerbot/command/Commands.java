@@ -137,8 +137,7 @@ enum Commands {
     }),
 
 
-    CONFIGURE("(configure )([0-9]+)( in (<#)[0-9]+(>))?((\n<@&)[0-9]+(> to )(((<(a)?:)[a-zA-Z0-9_]+(:)[0-9]+(>))|(.)))+",
-            "configure [ID] < in [#channel] > \\n { [@role] to [:emote:] }", e -> {
+    CONFIGURE("(configure )([0-9]+)( in (<#)[0-9]+(>))?((\n<@&)[0-9]+(> to )(((<(a)?:)[a-zA-Z0-9_]+(:)[0-9]+(>))|(.)))+", "configure [ID] < in [#channel] > \\n { [@role] to [:emote:] }", e -> {
         MessageConfiguration mc;
         String[] lines = getMessageCommand(e).split("\\n");
         IChannel c;
@@ -159,12 +158,25 @@ enum Commands {
             if(mc == null) return "The specified message is not configured.";
         }
 
+        StringBuilder m = new StringBuilder();
+
         for(int i = 1; i < lines.length; i++) {
             var p = getRoleEmotePair(lines[i]);
+            if(mc.isUsed(p.getValue())) {
+                m.append('\n');
+                m.append(p.getValue());
+                m.append(" is already configured for this message.");
+                continue;
+            } if(mc.getParent().getParent().isRoleConfigured(p.getKey())) {
+                m.append("\n`\\@");
+                m.append(e.getGuild().getRoleByID(p.getKey()).getName());
+                m.append("` is already configured.");
+                continue;
+            }
             mc.setRole(p.getKey(), p.getValue());
         }
 
-        return "Successfully updated configuration for " + mc.getID() + " in " + c.mention();
+        return "Successfully updated configuration for " + mc.getID() + " in " + c.mention() + m.toString();
     }),
     DECONFIGURE("(deconfigure )([0-9]+)( in (<#)[0-9]+(>))?((\n<@&)[0-9]+(>))+",
             "deconfigure [ID] < in [#channel] > \\n { [@role] }", e -> {
