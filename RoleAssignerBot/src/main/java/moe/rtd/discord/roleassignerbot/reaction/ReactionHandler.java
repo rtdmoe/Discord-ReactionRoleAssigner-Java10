@@ -90,22 +90,16 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
         var channel = messageConfiguration.getParent();
         var server = channel.getParent();
 
+        var messageID = messageConfiguration.getID();
+
         var dServer = client.getGuildByID(server.getID());
         System.out.println("Server: " + ((dServer != null) ? dServer.getLongID() : "null"));
         var dChannel = ((dServer != null) ? dServer.getChannelByID(channel.getID()) : null);
         System.out.println("Channel: " + ((dChannel != null) ? dChannel.getLongID() : "null"));
-        var dMessage = ((dChannel != null) ? dChannel.getMessageByID(messageConfiguration.getID()) : null);
+        var dHistory = ((dChannel != null) ? dChannel.getMessageHistoryIn(messageID, messageID) : null);
+        System.out.println("History: " + ((dHistory != null) ? messageID : "null"));
+        var dMessage = ((dHistory != null) ? dHistory.get(messageID) : null);
         System.out.println("Message: " + ((dMessage != null) ? dMessage.getLongID() : "null"));
-
-        while(dMessage == null) {
-            dMessage = ((dChannel != null) ? dChannel.getMessageByID(messageConfiguration.getID()) : null);
-            System.out.println("Message " + messageConfiguration.getID() + ": " + ((dMessage != null) ? dMessage.getLongID() : "null"));
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {
-                return;
-            }
-        }
 
         if(dMessage == null) {
             System.err.println("Message " + DataFormatter.format(messageConfiguration) + " not found.");
