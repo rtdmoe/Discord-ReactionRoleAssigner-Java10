@@ -25,7 +25,7 @@ public class Main {
 
         GUI.setup(); // Sets up the GUI.
         BotSettings.loadConfiguration(); // Loads the saved message configuration so that events aren't missed.
-        CommandFilter.start(); // Starts the command filter and handler before connecting to Discord.
+        CommandFilter.start(); // Starts the command filter and handler just after connecting to Discord.
         DiscordConnection.start(); // Connects to Discord, and the events can start queuing up.
         BotSettings.start(); // Starts the event handlers last so that the missed events can be processed first.
 

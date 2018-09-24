@@ -151,11 +151,18 @@ public class ServerConfiguration extends Identifiable implements Terminable {
     public void removeChannel(long ID) {
         if(terminated) return;
         ChannelConfiguration channel;
-        synchronized(channelConfigurations) {
+        end: synchronized(channelConfigurations) {
             channel = channelConfigurations.remove(ID);
             if(channelConfigurations.size() == 0) {
-                BotSettings.removeServer(getID());
-                terminate();
+                synchronized(properties) {
+                    for(Map.Entry<Properties, Serializable> e : properties.entrySet()) {
+                        if(!e.getValue().equals(e.getKey().getDefaultValue())) {
+                            break end;
+                        }
+                    }
+                    BotSettings.removeServer(getID());
+                    terminate();
+                }
             }
         }
         if(channel != null) channel.terminate();

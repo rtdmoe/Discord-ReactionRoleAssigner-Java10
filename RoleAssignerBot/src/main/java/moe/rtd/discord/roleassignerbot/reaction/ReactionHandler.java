@@ -86,21 +86,38 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
         if(terminated) return;
 
         var client = DiscordConnection.getClient();
+
         var channel = messageConfiguration.getParent();
         var server = channel.getParent();
-        var message = client.getGuildByID(server.getID()).getChannelByID(channel.getID()).getMessageByID(messageConfiguration.getID());
 
-        if(message == null) {
+        var dServer = client.getGuildByID(server.getID());
+        System.out.println("Server: " + ((dServer != null) ? dServer.getLongID() : "null"));
+        var dChannel = ((dServer != null) ? dServer.getChannelByID(channel.getID()) : null);
+        System.out.println("Channel: " + ((dChannel != null) ? dChannel.getLongID() : "null"));
+        var dMessage = ((dChannel != null) ? dChannel.getMessageByID(messageConfiguration.getID()) : null);
+        System.out.println("Message: " + ((dMessage != null) ? dMessage.getLongID() : "null"));
+
+        while(dMessage == null) {
+            dMessage = ((dChannel != null) ? dChannel.getMessageByID(messageConfiguration.getID()) : null);
+            System.out.println("Message " + messageConfiguration.getID() + ": " + ((dMessage != null) ? dMessage.getLongID() : "null"));
+            try {
+                Thread.sleep(1000);
+            } catch (InterruptedException e) {
+                return;
+            }
+        }
+
+        if(dMessage == null) {
             System.err.println("Message " + DataFormatter.format(messageConfiguration) + " not found.");
             terminate();
             return;
         }
 
-        List<IReaction> reactions = message.getReactions();
+        List<IReaction> reactions = dMessage.getReactions();
 
         for(IReaction r : reactions) {
             if(messageConfiguration.isUsed(r.getEmoji().toString())) {
-                IRole ROLE = message.getGuild().getRoleByID(messageConfiguration.getRole(r.getEmoji().toString()));
+                IRole ROLE = dMessage.getGuild().getRoleByID(messageConfiguration.getRole(r.getEmoji().toString()));
                 // FOR EACH CONFIGURED REACTION:
 
                 for(IUser u : r.getUsers()) {
@@ -108,7 +125,7 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
                     if(!(u.hasRole(ROLE))) u.addRole(ROLE);
                 }
 
-                for(IUser u : message.getGuild().getUsersByRole(ROLE)) {
+                for(IUser u : dMessage.getGuild().getUsersByRole(ROLE)) {
                     // REMOVE ALL UNWANTED ROLES
                     if(!(r.getUserReacted(u))) u.removeRole(ROLE);
                 }
