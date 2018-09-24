@@ -97,7 +97,7 @@ public class BotSettings {
             for(int i = 0; i < snList.getLength(); i++) {
                 var sn = (Element) snList.item(i);
                 System.out.println("Server found: " + sn.getAttribute("id"));
-                var s = addServer(Long.parseLong(sn.getAttributes().getNamedItem("id").getNodeValue()));
+                var s = addServer(Long.parseUnsignedLong(sn.getAttributes().getNamedItem("id").getNodeValue()));
                 // Server Properties
                 {
                     var enList = ((Element) sn.getElementsByTagName("Properties").item(0))
@@ -116,13 +116,13 @@ public class BotSettings {
                 for(int j = 0; j < cnList.getLength(); j++) {
                     var cn = (Element) cnList.item(j);
                     System.out.println("Channel found: " + cn.getAttribute("id"));
-                    var c = s.addChannel(Long.parseLong(cn.getAttributes().getNamedItem("id").getNodeValue()));
+                    var c = s.addChannel(Long.parseUnsignedLong(cn.getAttributes().getNamedItem("id").getNodeValue()));
                     var mnList = cn.getElementsByTagName("MessageConfiguration");
                     // Message loop
                     for(int k = 0; k < mnList.getLength(); k++) {
                         var mn = (Element) mnList.item(k);
                         System.out.println("Message found: " + mn.getAttribute("id"));
-                        var m = c.addMessage(Long.parseLong(mn.getAttribute("id")));
+                        var m = c.addMessage(Long.parseUnsignedLong(mn.getAttribute("id")));
                         var enList = mn.getElementsByTagName("Entry");
                         // Message Configuration loop
                         for(int l = 0; l < enList.getLength(); l++) {
@@ -130,7 +130,7 @@ public class BotSettings {
                             System.out.println("Message Entry found: " +
                                     en.getAttribute("role") + " to " + en.getAttribute("emote"));
                             m.setRole(
-                                    Long.parseLong(en.getAttribute("role")),
+                                    Long.parseUnsignedLong(en.getAttribute("role")),
                                     en.getAttribute("emote")
                             );
                         }

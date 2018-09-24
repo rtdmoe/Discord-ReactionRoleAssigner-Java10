@@ -60,7 +60,8 @@ public class CommandFilter implements Runnable {
      */
     public static void accept(MessageReceivedEvent messageReceivedEvent) throws InterruptedException {
         if(stopped) return;
-        System.out.println("Received command \"" + messageReceivedEvent.getMessage() + "\"."); // TODO replace with log4j
+        System.out.println("Received command \"" +
+                Integer.toHexString(messageReceivedEvent.getMessage().hashCode()).toUpperCase() + "\"."); // TODO replace with log4j
         queue.put(messageReceivedEvent);
     }
 

@@ -38,7 +38,6 @@ public class Main {
      */
     private static void exit() {
 
-        DiscordConnection.waitForConnection();
         DiscordConnection.getClient().changePresence(StatusType.DND, ActivityType.PLAYING, "shutting down..."); // Change bot presence to show that it's shutting down.
 
         BotSettings.stop(); // Stops the event handlers so that the event handling isn't interrupted by the closing connection.

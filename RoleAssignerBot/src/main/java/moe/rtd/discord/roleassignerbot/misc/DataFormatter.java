@@ -28,7 +28,7 @@ public final class DataFormatter {
         var sb = new StringBuilder("[ ");
 
         for(int i = (IDs.size() - 1); i >= 0; i--) {
-            sb.append(Long.toHexString(IDs.get(i)));
+            sb.append(Long.toHexString(IDs.get(i)).toUpperCase());
             sb.append(" -> ");
         }
 

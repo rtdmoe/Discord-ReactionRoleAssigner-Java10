@@ -42,7 +42,7 @@ enum Commands {
                     StringBuilder sb = new StringBuilder("List of configured messages in this server:");
                     sb.append("\n```\n");
 
-                    sc.forEach((cID, cc) -> cc.forEach((mID, mc) -> sb.append(mc.getID())));
+                    sc.forEach((cID, cc) -> cc.forEach((mID, mc) -> sb.append(mc.getID()).append('\n')));
 
                     sb.append("```");
                     return sb.toString();
@@ -75,10 +75,10 @@ enum Commands {
     SHOW("(show )([0-9]+)( in (<#)[0-9]+(>))?", "show [ID] < in [#channel] >", e -> {
         var m = getMessageCommand(e);
         String[] keywords = getMessageCommand(e).split("\\s");
-        var ID = Long.parseLong(keywords[1]);
+        var ID = Long.parseUnsignedLong(keywords[1]);
         IChannel c;
         if(m.contains("in")) {
-            c = e.getGuild().getChannelByID(Long.parseLong(keywords[3]));
+            c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3]));
         } else {
             c = e.getChannel();
         }
@@ -94,9 +94,7 @@ enum Commands {
         mc.forEach((role, emote) -> {
             sb.append(e.getGuild().getRoleByID(role).mention());
             sb.append(" to ");
-            sb.append("<:emote:");
             sb.append(emote);
-            sb.append('>');
             sb.append('\n');
         });
 
@@ -108,10 +106,10 @@ enum Commands {
     ADD("(add )([0-9]+)( in (<#)[0-9]+(>))?", "add [ID] < in [#channel] >", e -> {
         var m = getMessageCommand(e);
         String[] keywords = getMessageCommand(e).split("\\s");
-        var ID = Long.parseLong(keywords[1]);
+        var ID = Long.parseUnsignedLong(keywords[1]);
         IChannel c;
         if(m.contains("in")) {
-            c = e.getGuild().getChannelByID(Long.parseLong(keywords[3]));
+            c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3]));
         } else {
             c = e.getChannel();
         }
@@ -121,10 +119,10 @@ enum Commands {
     REMOVE("(remove )([0-9]+)( in (<#)[0-9]+(>))?", "remove [ID] < in [#channel] >", e -> {
         var m = getMessageCommand(e);
         String[] keywords = getMessageCommand(e).split("\\s");
-        var ID = Long.parseLong(keywords[1]);
+        var ID = Long.parseUnsignedLong(keywords[1]);
         IChannel c;
         if(m.contains("in")) {
-            c = e.getGuild().getChannelByID(Long.parseLong(keywords[3]));
+            c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3]));
         } else {
             c = e.getChannel();
         }
@@ -139,7 +137,7 @@ enum Commands {
     }),
 
 
-    CONFIGURE("(configure )([0-9]+)( in (<#)[0-9]+(>))?((\n<@&)[0-9]+(> to )((.)|((<(a)?:)[a-zA-Z0-9_]+(:)[0-9]+(>))))+",
+    CONFIGURE("(configure )([0-9]+)( in (<#)[0-9]+(>))?((\n<@&)[0-9]+(> to )(((<(a)?:)[a-zA-Z0-9_]+(:)[0-9]+(>))|(.)))+",
             "configure [ID] < in [#channel] > \\n { [@role] to [:emote:] }", e -> {
         MessageConfiguration mc;
         String[] lines = getMessageCommand(e).split("\\n");
@@ -147,9 +145,9 @@ enum Commands {
         {
             var m = getMessageCommand(e);
             String[] keywords = lines[0].split("\\s");
-            var ID = Long.parseLong(keywords[1]);
+            var ID = Long.parseUnsignedLong(keywords[1]);
             if(m.contains("in")) {
-                c = e.getGuild().getChannelByID(Long.parseLong(keywords[3]));
+                c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3]));
             } else {
                 c = e.getChannel();
             }
@@ -176,9 +174,9 @@ enum Commands {
         {
             var m = getMessageCommand(e);
             String[] keywords = lines[0].split("\\s");
-            var ID = Long.parseLong(keywords[1]);
+            var ID = Long.parseUnsignedLong(keywords[1]);
             if(m.contains("in")) {
-                c = e.getGuild().getChannelByID(Long.parseLong(keywords[3]));
+                c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3]));
             } else {
                 c = e.getChannel();
             }
@@ -223,11 +221,15 @@ enum Commands {
      * @return The extracted command.
      */
     private static String getMessageCommand(MessageReceivedEvent e) {
-        var s = e.getMessage().getContent();
-        s = s.replace("<@" + e.getClient().getOurUser().getLongID() + ">", "");
-        while(s.startsWith(" ") || s.startsWith("\n")) s = s.substring(1);
-        while(s.endsWith(" ") || s.endsWith("\n")) s = s.substring(1);
-        return s;
+        var a = e.getMessage().getContent().replaceAll("(<@)[0-9]+(>)", "").split("\n");
+        StringBuilder sb = new StringBuilder();
+        for(int i = 0; i < a.length; i++) {
+            while(a[i].startsWith(" ") || a[i].startsWith("\n")) a[i] = a[i].substring(1);
+            while(a[i].endsWith(" ") || a[i].endsWith("\n")) a[i] = a[i].substring(0, a[i].length() - 1);
+            if(i != 0) sb.append('\n');
+            sb.append(a[i]);
+        }
+        return sb.toString();
     }
 
     /**
@@ -249,7 +251,7 @@ enum Commands {
      */
     private static Long getRole(String line) {
         var s = line.replace("<@&", "").replace(">", "");
-        return Long.parseLong(s);
+        return Long.parseUnsignedLong(s);
     }
 
     /**
@@ -268,8 +270,9 @@ enum Commands {
      * @return The output of running this command.
      */
     String execute(MessageReceivedEvent e) throws CommandSyntaxException {
-        System.out.println("Executing command " + e.getMessage() + "\"."); // TODO replace with log4j
-        checkSyntax(getMessageCommand(e));
+        var s = getMessageCommand(e);
+        System.out.println("Executing command \"" + s + "\"."); // TODO replace with log4j
+        checkSyntax(s);
         return getCommand().execute(e);
     }
 

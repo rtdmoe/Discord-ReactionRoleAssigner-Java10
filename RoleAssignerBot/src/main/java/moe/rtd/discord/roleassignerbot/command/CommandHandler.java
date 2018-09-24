@@ -37,16 +37,12 @@ class CommandHandler implements Runnable {
             MessageReceivedEvent e;
             try {
                 e = queue.take();
-                System.out.println("Handling command \"" + e.getMessage() + "\".");
+                System.out.println("Handling command \"" + Integer.toHexString(e.getMessage().hashCode()).toUpperCase() + "\".");
                 try {
                     var s = e.getMessage().getContent();
-                    System.out.println("Message content: \"" + s + "\".");
                     s = s.replace("<@" + e.getClient().getOurUser().getLongID() + ">", "");
-                    System.out.println("Command content: \"" + s + "\".");
                     while(s.startsWith(" ") || s.startsWith("\n")) s = s.substring(1);
-                    while(s.endsWith(" ") || s.endsWith("\n")) s = s.substring(0, s.length()-1);
-                    System.out.println("Modified content: \"" + s + "\".");
-                    String m = Commands.valueOf(s.substring(0, s.indexOf(' ')).toUpperCase()).execute(e);
+                    String m = Commands.valueOf(s.split(" ")[0].toUpperCase()).execute(e);
                     if(m != null) e.getChannel().sendMessage(e.getAuthor().mention() + " " + m);
                 } catch(CommandSyntaxException cse) {
                     e.getChannel().sendMessage(e.getAuthor().mention() + " Syntax Error: " + cse.getMessage());
@@ -64,7 +60,8 @@ class CommandHandler implements Runnable {
      */
     static void accept(MessageReceivedEvent messageReceivedEvent) throws InterruptedException {
         if(stopped) return;
-        System.out.println("Filtered command \"" + messageReceivedEvent.getMessage() + "\"."); // TODO replace with log4j
+        System.out.println("Filtered command \"" +
+                Integer.toHexString(messageReceivedEvent.getMessage().hashCode()).toUpperCase() + "\"."); // TODO replace with log4j
         queue.put(messageReceivedEvent);
     }
 

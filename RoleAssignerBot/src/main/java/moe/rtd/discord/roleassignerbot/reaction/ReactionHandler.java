@@ -90,6 +90,12 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
         var server = channel.getParent();
         var message = client.getGuildByID(server.getID()).getChannelByID(channel.getID()).getMessageByID(messageConfiguration.getID());
 
+        if(message == null) {
+            System.err.println("Message " + DataFormatter.format(messageConfiguration) + " not found.");
+            terminate();
+            return;
+        }
+
         List<IReaction> reactions = message.getReactions();
 
         for(IReaction r : reactions) {
@@ -172,6 +178,7 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
             terminated = true;
             thread.interrupt();
             queue.clear();
+            if(Thread.currentThread() == thread) return;
             try {
                 thread.join();
             } catch(InterruptedException e) {
