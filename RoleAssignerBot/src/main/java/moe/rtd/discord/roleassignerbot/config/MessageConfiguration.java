@@ -26,9 +26,8 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
     /**
      * Map of role IDs to emote IDs that this message is configured for.<br>
      * The role is the key, the emote is the value.
-     * <p><b>THE TYPE IS THE SAME SO DO NOT GET THE ORDER CONFUSED!</p></b>
      */
-    private final Map<Long, Long> configuration;
+    private final Map<Long, String> configuration;
 
     /**
      * Instantiates this {@link MessageConfiguration}; sets up the reaction handler.
@@ -45,7 +44,7 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
      * Returns a deep clone of the map.
      * <p><b>WARNING: TIME CONSUMING MAP BLOCKING METHOD!</b></p>
      */
-    public Map<Long, Long> getConfiguration() {
+    public Map<Long, String> getConfiguration() {
         if(terminated) return null;
         synchronized(configuration) {
             if(terminated) return null;
@@ -57,7 +56,7 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
      * @param ROLE The role to search for.
      * @return The emote that the role is bound to.
      */
-    public Long getEmote(long ROLE) {
+    public String getEmote(long ROLE) {
         if(terminated) return null;
         synchronized(configuration) {
             if(terminated) return null;
@@ -71,11 +70,11 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
      * @param EMOTE The emote to search for.
      * @return The role which is bound to the emote.
      */
-    public Long getRole(long EMOTE) {
+    public Long getRole(String EMOTE) {
         if(terminated) return null;
         synchronized(configuration) {
             if(terminated) return null;
-            for(var entry : configuration.entrySet()) if(entry.getValue() == EMOTE) return entry.getKey();
+            for(var entry : configuration.entrySet()) if(entry.getValue().equals(EMOTE)) return entry.getKey();
             return null;
         }
     }
@@ -85,7 +84,7 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
      * @param ROLE The role to bind (The key).
      * @param EMOTE The emote to bind it to (The value).
      */
-    public void setRole(long ROLE, long EMOTE) {
+    public void setRole(long ROLE, String EMOTE) {
         if(terminated) return;
         synchronized(configuration) {
             if(terminated) return;
@@ -121,7 +120,7 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
      * @param EMOTE The emote to search for.
      * @return Whether or not the emote is already used in the map.
      */
-    public boolean isUsed(long EMOTE) {
+    public boolean isUsed(String EMOTE) {
         if(terminated) return false;
         synchronized(configuration) {
             if(terminated) return false;
@@ -132,7 +131,7 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
     /**
      * @see Map#forEach(BiConsumer)
      */
-    public void forEach(BiConsumer<Long, Long> action) {
+    public void forEach(BiConsumer<Long, String> action) {
         synchronized(configuration) {
             configuration.forEach(action);
         }

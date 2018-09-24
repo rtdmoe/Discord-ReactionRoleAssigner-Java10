@@ -15,6 +15,7 @@ import java.util.regex.Pattern;
  * List of all commands.
  * @author Big J
  */
+@SuppressWarnings("unused")
 enum Commands {
     AUTHORIZE("(authorize )((<@&)[0-9]+(>))", "authorize [@role]", e -> {
         if(e.getAuthor().getPermissionsForGuild(e.getGuild()).contains(Permissions.ADMINISTRATOR)) {
@@ -140,7 +141,7 @@ enum Commands {
     }),
 
 
-    CONFIGURE("(configure )([0-9]+)( in (<#)[0-9]+(>))?((\n<@&)[0-9]+(> to <:)[a-zA-Z0-9_]+(:)[0-9]+(>))+",
+    CONFIGURE("(configure )([0-9]+)( in (<#)[0-9]+(>))?((\n<@&)[0-9]+(> to )((.)|((<:)[a-zA-Z0-9_]+(:)[0-9]+(>))))+",
             "configure [ID] < in [#channel] > \\n { [@role] to [:emote:] }", e -> {
         MessageConfiguration mc;
         String[] lines = getMessageCommand(e).split("\\n");
@@ -235,10 +236,13 @@ enum Commands {
      * @param line The line to parse.
      * @return The parsed pair of parameters.
      */
-    private static Pair<Long, Long> getRoleEmotePair(String line) {
+    private static Pair<Long, String> getRoleEmotePair(String line) {
         String[] words = line.split("\\s");
-        var s = words[2].replaceAll("(<:)[a-zA-Z0-9_]+(:)", "").replace(">", "");
-        return new Pair<>(getRole(words[0]), Long.parseLong(s));
+        String s;
+        if(Pattern.compile("(<:)[a-zA-Z0-9_]+(:)[0-9]+(>)").matcher(words[2]).matches()) {
+            s = words[2].replaceFirst("(<:)[a-zA-Z0-9_]+(:)", "").replace(">", "");
+        } else s = words[2];
+        return new Pair<>(getRole(words[0]), s);
     }
 
     /**

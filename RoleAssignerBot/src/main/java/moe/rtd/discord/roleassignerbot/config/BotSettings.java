@@ -125,7 +125,7 @@ public class BotSettings {
                             var en = (Element) enList.item(l);
                             m.setRole(
                                     Long.parseLong(en.getAttribute("role")),
-                                    Long.parseLong(en.getAttribute("emote"))
+                                    en.getAttribute("emote")
                             );
                         }
                     }
@@ -229,7 +229,7 @@ public class BotSettings {
                                 {
                                     // Set Entry attributes
                                     e.setAttribute("role", role.toString());
-                                    e.setAttribute("emote", emote.toString());
+                                    e.setAttribute("emote", emote);
                                 }
                             });
                         });
