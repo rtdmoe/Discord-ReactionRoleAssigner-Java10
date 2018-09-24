@@ -91,11 +91,12 @@ public class BotSettings {
         Element root = (Element) doc.getElementsByTagName("BotSettings").item(0);
 
         {
-            // TODO add logging to everything
+            // TODO replace console with log4j
             var snList = root.getElementsByTagName("ServerConfiguration");
             // Server loop
             for(int i = 0; i < snList.getLength(); i++) {
                 var sn = (Element) snList.item(i);
+                System.out.println("Server found: " + sn.getAttribute("id"));
                 var s = addServer(Long.parseLong(sn.getAttributes().getNamedItem("id").getNodeValue()));
                 // Server Properties
                 {
@@ -104,6 +105,7 @@ public class BotSettings {
                     // Properties Entry loop
                     for (int k = 0; k < enList.getLength(); k++) {
                         var en = (Element) enList.item(k);
+                        System.out.println("Properties Entry found: " + en.getAttribute("key"));
                         s.setProperty(
                                 ServerConfiguration.Properties.valueOf(en.getAttribute("key").toUpperCase()),
                                 deserializeBase64(en.getAttribute("value")));
@@ -111,18 +113,22 @@ public class BotSettings {
                 }
                 var cnList = sn.getElementsByTagName("ChannelConfiguration");
                 // Channel loop
-                for(int j = 1; j < cnList.getLength(); j++) {
+                for(int j = 0; j < cnList.getLength(); j++) {
                     var cn = (Element) cnList.item(j);
+                    System.out.println("Channel found: " + cn.getAttribute("id"));
                     var c = s.addChannel(Long.parseLong(cn.getAttributes().getNamedItem("id").getNodeValue()));
                     var mnList = cn.getElementsByTagName("MessageConfiguration");
                     // Message loop
                     for(int k = 0; k < mnList.getLength(); k++) {
                         var mn = (Element) mnList.item(k);
-                        var m = c.addMessage(Long.parseLong(mn.getAttributes().getNamedItem("id").getNodeValue()));
+                        System.out.println("Message found: " + mn.getAttribute("id"));
+                        var m = c.addMessage(Long.parseLong(mn.getAttribute("id")));
                         var enList = mn.getElementsByTagName("Entry");
                         // Message Configuration loop
                         for(int l = 0; l < enList.getLength(); l++) {
                             var en = (Element) enList.item(l);
+                            System.out.println("Message Entry found: " +
+                                    en.getAttribute("role") + " to " + en.getAttribute("emote"));
                             m.setRole(
                                     Long.parseLong(en.getAttribute("role")),
                                     en.getAttribute("emote")
