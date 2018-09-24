@@ -1,6 +1,7 @@
 package moe.rtd.discord.roleassignerbot.filter;
 
 import moe.rtd.discord.roleassignerbot.config.ServerConfiguration;
+import moe.rtd.discord.roleassignerbot.misc.DataFormatter;
 import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionEvent;
 
 /**
@@ -21,6 +22,7 @@ public class ServerReactionFilter extends ReactionFilter<ServerConfiguration> {
         var ID = reactionEvent.getChannel().getLongID();
         var channel = getOwner().getChannel(ID);
         if(channel != null) {
+            System.out.println("Reaction filtered: " + DataFormatter.format(channel));
             try {
                 channel.getReactionFilter().accept(reactionEvent);
             } catch(InterruptedException e) {

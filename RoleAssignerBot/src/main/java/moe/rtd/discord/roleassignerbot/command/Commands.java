@@ -35,13 +35,11 @@ enum Commands {
         switch(keywords[1]) {
             case "all":
                 {
-                    var c = e.getMessage().getChannelMentions().get(0);
+                    var c = e.getMessage().getChannel();
                     var sc = BotSettings.getServer(c.getGuild().getLongID());
-                    if(sc == null) return "No configured messages for " +
-                            e.getMessage().getChannelMentions().get(0).mention();
+                    if(sc == null) return "No configured messages for this server.";
 
-                    StringBuilder sb = new StringBuilder("List of configured messages in " +
-                            e.getMessage().getChannelMentions().get(0).mention());
+                    StringBuilder sb = new StringBuilder("List of configured messages in this server:");
                     sb.append("\n```\n");
 
                     sc.forEach((cID, cc) -> cc.forEach((mID, mc) -> sb.append(mc.getID())));

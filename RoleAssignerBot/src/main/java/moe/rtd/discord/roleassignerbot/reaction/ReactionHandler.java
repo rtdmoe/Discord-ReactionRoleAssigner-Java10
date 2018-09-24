@@ -1,5 +1,6 @@
 package moe.rtd.discord.roleassignerbot.reaction;
 
+import moe.rtd.discord.roleassignerbot.config.BotSettings;
 import moe.rtd.discord.roleassignerbot.discord.DiscordConnection;
 import moe.rtd.discord.roleassignerbot.config.MessageConfiguration;
 import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
@@ -116,11 +117,20 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
     private void handle(ReactionEvent reactionEvent) throws InterruptedException {
         if(terminated) throw new InterruptedException();
 
+        String out = "Reaction to " + DataFormatter.format(BotSettings
+                .getServer(reactionEvent.getGuild().getLongID())
+                .getChannel(reactionEvent.getChannel().getLongID())
+                .getMessage(reactionEvent.getMessageID())
+        );
+
         if(reactionEvent instanceof ReactionAddEvent) {
             var e = (ReactionAddEvent) reactionEvent;
 
+            out += " has been added";
+
             String EMOTE = e.getReaction().getEmoji().toString();
             if(messageConfiguration.isUsed(EMOTE)) {
+                out += " and accepted.";
                 long ROLE = messageConfiguration.getRole(EMOTE);
                 e.getUser().addRole(e.getGuild().getRoleByID(ROLE));
             }
@@ -128,13 +138,17 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
         } else if(reactionEvent instanceof ReactionRemoveEvent) {
             var e = (ReactionRemoveEvent) reactionEvent;
 
+            out += " has been removed";
+
             String EMOTE = e.getReaction().getEmoji().toString();
             if(messageConfiguration.isUsed(EMOTE)) {
+                out += " and accepted.";
                 long ROLE = messageConfiguration.getRole(EMOTE);
                 e.getUser().removeRole(e.getGuild().getRoleByID(ROLE));
             }
 
         } else throw new RuntimeException("ReactionEvent is neither one of the two known subclasses.");
+        System.out.println(out);
     }
 
     /**

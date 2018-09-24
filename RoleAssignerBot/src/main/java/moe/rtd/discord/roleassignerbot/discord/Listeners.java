@@ -21,6 +21,7 @@ class Listeners {
     static final IListener<ReactionEvent> reactionEvent = reactionEvent -> {
         var ID = reactionEvent.getGuild().getLongID();
         var server = BotSettings.getServer(ID);
+        System.out.println("Reaction received."); // TODO remove when no longer needed for debugging purposes
         if(server != null) {
             try {
                 server.getReactionFilter().accept(reactionEvent);
@@ -33,8 +34,9 @@ class Listeners {
     /**
      * Listener for receiving and filtering commands.
      */
-    static final IListener<MessageReceivedEvent> messageRecievedEvent = messageReceivedEvent -> {
+    static final IListener<MessageReceivedEvent> messageReceivedEvent = messageReceivedEvent -> {
         if(messageReceivedEvent.getMessage().getMentions().contains(messageReceivedEvent.getClient().getOurUser())) {
+            System.out.println("Message received."); // TODO remove when no longer needed for debugging purposes
             try {
                 CommandFilter.accept(messageReceivedEvent);
             } catch(InterruptedException e) {

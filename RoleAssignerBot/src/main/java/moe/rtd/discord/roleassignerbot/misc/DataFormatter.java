@@ -32,7 +32,7 @@ public final class DataFormatter {
             sb.append(" -> ");
         }
 
-        sb.append(Long.toHexString(identifiable.getID()));
+        sb.append(Long.toHexString(identifiable.getID()).toUpperCase());
         sb.append(" ]");
         return sb.toString();
     }
