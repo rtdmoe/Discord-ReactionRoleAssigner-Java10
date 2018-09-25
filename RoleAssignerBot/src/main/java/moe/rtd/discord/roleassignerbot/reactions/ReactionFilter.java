@@ -1,4 +1,4 @@
-package moe.rtd.discord.roleassignerbot.filter;
+package moe.rtd.discord.roleassignerbot.reactions;
 
 import moe.rtd.discord.roleassignerbot.config.Identifiable;
 import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
@@ -21,7 +21,7 @@ public abstract class ReactionFilter<O extends Identifiable> implements QueueCon
     private final BlockingQueue<ReactionEvent> queue;
 
     /**
-     * The owner of this filter.
+     * The owner of this reactions.
      */
     private final O owner;
 
@@ -50,16 +50,16 @@ public abstract class ReactionFilter<O extends Identifiable> implements QueueCon
      */
     @Override
     public final void run() {
-        System.out.println("Reaction filter for " + DataFormatter.format(owner) + " has started."); // TODO replace with log4j
+        System.out.println("Reaction reactions for " + DataFormatter.format(owner) + " has started."); // TODO replace with log4j
         while(!terminated) {
             try {
                 filter(queue.take());
             } catch(InterruptedException e) {
-                System.out.println("Reaction filter for " + DataFormatter.format(owner) + " has been interrupted."); // TODO replace with log4j
+                System.out.println("Reaction reactions for " + DataFormatter.format(owner) + " has been interrupted."); // TODO replace with log4j
                 if(terminated) break;
             }
         }
-        System.out.println("Reaction filter for " + DataFormatter.format(owner) + " has been terminated."); // TODO replace with log4j
+        System.out.println("Reaction reactions for " + DataFormatter.format(owner) + " has been terminated."); // TODO replace with log4j
     }
 
     /**
@@ -69,7 +69,7 @@ public abstract class ReactionFilter<O extends Identifiable> implements QueueCon
 
     /**
      * Puts an event at the end of the queue.
-     * @param reactionEvent The reaction event to filter.
+     * @param reactionEvent The reaction event to reactions.
      * @throws InterruptedException If the current thread is interrupted when waiting for a free space in the queue.
      */
     @Override
@@ -86,7 +86,7 @@ public abstract class ReactionFilter<O extends Identifiable> implements QueueCon
     }
 
     /**
-     * Terminates this filter.
+     * Terminates this reactions.
      */
     @Override
     public final void terminate() {

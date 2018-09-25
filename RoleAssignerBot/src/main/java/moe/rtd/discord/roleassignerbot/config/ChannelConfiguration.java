@@ -1,6 +1,6 @@
 package moe.rtd.discord.roleassignerbot.config;
 
-import moe.rtd.discord.roleassignerbot.filter.ChannelReactionFilter;
+import moe.rtd.discord.roleassignerbot.reactions.ChannelReactionFilter;
 import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
 
 import java.util.Map;
@@ -24,7 +24,7 @@ public class ChannelConfiguration extends IdentifiableChild<ServerConfiguration>
     private volatile boolean terminated = false;
 
     /**
-     * The reaction event filter for this instance.
+     * The reaction event reactions for this instance.
      */
     private final ChannelReactionFilter reactionFilter;
 

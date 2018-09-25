@@ -35,7 +35,7 @@ public class CommandFilter implements Runnable {
     @Override
     public void run() {
         // TODO add log4j
-        System.out.println("Command filter starting.");
+        System.out.println("Command reactions starting.");
         while(!stopped) {
             MessageReceivedEvent e;
             try {
@@ -66,7 +66,7 @@ public class CommandFilter implements Runnable {
     }
 
     /**
-     * Starts this filter and the package-private command handler.
+     * Starts this reactions and the package-private command handler.
      */
     public static void start() {
         synchronized(thread) {
@@ -76,7 +76,7 @@ public class CommandFilter implements Runnable {
     }
 
     /**
-     * Stops this filter and the package-private command handler.
+     * Stops this reactions and the package-private command handler.
      */
     public static void stop() {
         if(stopped) return;

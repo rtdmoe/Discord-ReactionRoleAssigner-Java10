@@ -1,4 +1,4 @@
-package moe.rtd.discord.roleassignerbot.reaction;
+package moe.rtd.discord.roleassignerbot.reactions;
 
 import moe.rtd.discord.roleassignerbot.config.BotSettings;
 import moe.rtd.discord.roleassignerbot.discord.DiscordConnection;

@@ -25,7 +25,7 @@ public class Main {
 
         GUI.setup(); // Sets up the GUI.
         BotSettings.loadConfiguration(); // Loads the saved message configuration so that events aren't missed.
-        CommandFilter.start(); // Starts the command filter and handler just after connecting to Discord.
+        CommandFilter.start(); // Starts the command reactions and handler just after connecting to Discord.
         DiscordConnection.start(); // Connects to Discord, and the events can start queuing up.
         BotSettings.start(); // Starts the event handlers last so that the missed events can be processed first.
 
@@ -39,7 +39,7 @@ public class Main {
     private static void exit() {
 
         BotSettings.stop(); // Stops the event handlers so that the event handling isn't interrupted by the closing connection.
-        CommandFilter.stop(); // Stops the command filter and handler.
+        CommandFilter.stop(); // Stops the command reactions and handler.
         BotSettings.saveConfiguration(); // Saves the configuration to the save file.
         BotSettings.destroy(); // Clears all loaded configuration data and stops any running threads in the process.
         GUI.close(); // Closes the GUI.

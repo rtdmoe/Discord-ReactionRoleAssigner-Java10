@@ -1,6 +1,6 @@
 package moe.rtd.discord.roleassignerbot.config;
 
-import moe.rtd.discord.roleassignerbot.filter.ServerReactionFilter;
+import moe.rtd.discord.roleassignerbot.reactions.ServerReactionFilter;
 import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
 
 import java.io.Serializable;
@@ -28,7 +28,7 @@ public class ServerConfiguration extends Identifiable implements Terminable {
     private volatile boolean terminated = false;
 
     /**
-     * The reaction event filter for this instance.
+     * The reaction event reactions for this instance.
      */
     private final ServerReactionFilter reactionFilter;
 

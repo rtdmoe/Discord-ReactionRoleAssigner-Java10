@@ -1,4 +1,4 @@
-package moe.rtd.discord.roleassignerbot.filter;
+package moe.rtd.discord.roleassignerbot.reactions;
 
 import moe.rtd.discord.roleassignerbot.config.ChannelConfiguration;
 import moe.rtd.discord.roleassignerbot.misc.DataFormatter;
@@ -11,7 +11,7 @@ public class ChannelReactionFilter extends ReactionFilter<ChannelConfiguration> 
 
     /**
      * Sets up the queue and starts the thread.
-     * @param owner Channel that this filter belongs to.
+     * @param owner Channel that this reactions belongs to.
      */
     public ChannelReactionFilter(ChannelConfiguration owner) {
         super(owner);

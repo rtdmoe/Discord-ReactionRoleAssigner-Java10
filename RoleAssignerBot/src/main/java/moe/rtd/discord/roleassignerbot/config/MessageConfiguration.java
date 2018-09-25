@@ -1,7 +1,7 @@
 package moe.rtd.discord.roleassignerbot.config;
 
 import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
-import moe.rtd.discord.roleassignerbot.reaction.ReactionHandler;
+import moe.rtd.discord.roleassignerbot.reactions.ReactionHandler;
 
 import java.util.Map;
 import java.util.TreeMap;
