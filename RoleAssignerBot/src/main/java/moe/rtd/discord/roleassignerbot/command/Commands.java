@@ -42,7 +42,7 @@ enum Commands {
                     StringBuilder sb = new StringBuilder("List of configured messages in this server:");
                     sb.append("\n```\n");
 
-                    sc.forEach((cID, cc) -> cc.forEach((mID, mc) -> sb.append(mc.getID()).append('\n')));
+                    sc.forEach((cID, cc) -> cc.forEach((mID, mc) -> sb.append(cc.getID()).append(" -> ").append(mc.getID()).append('\n')));
 
                     sb.append("```");
                     return sb.toString();
@@ -89,7 +89,7 @@ enum Commands {
         var mc = cc.getMessage(ID);
         if(mc == null) return "The specified message is not configured.";
         StringBuilder sb = new StringBuilder("Configuration for " + ID + " in " + c.mention());
-        sb.append("\n```\n");
+        sb.append('\n');
 
         mc.forEach((role, emote) -> {
             sb.append(e.getGuild().getRoleByID(role).mention());
@@ -98,10 +98,8 @@ enum Commands {
             sb.append('\n');
         });
 
-        sb.append("```");
         return sb.toString();
     }),
-
 
     ADD("(add )([0-9]+)( in (<#)[0-9]+(>))?", "add [ID] < in [#channel] >", e -> {
         var m = getMessageCommand(e);
@@ -135,7 +133,6 @@ enum Commands {
         mc.terminate();
         return "Successfully removed configuration for " + ID + " in " + c.mention();
     }),
-
 
     CONFIGURE("(configure )([0-9]+)( in (<#)[0-9]+(>))?((\n<@&)[0-9]+(> to )(((<(a)?:)[a-zA-Z0-9_]+(:)[0-9]+(>))|(.)))+", "configure [ID] < in [#channel] > \\n { [@role] to [:emote:] }", e -> {
         MessageConfiguration mc;
@@ -178,8 +175,7 @@ enum Commands {
 
         return "Successfully updated configuration for " + mc.getID() + " in " + c.mention() + m.toString();
     }),
-    DECONFIGURE("(deconfigure )([0-9]+)( in (<#)[0-9]+(>))?((\n<@&)[0-9]+(>))+",
-            "deconfigure [ID] < in [#channel] > \\n { [@role] }", e -> {
+    DECONFIGURE("(deconfigure )([0-9]+)( in (<#)[0-9]+(>))?((\n<@&)[0-9]+(>))+", "deconfigure [ID] < in [#channel] > \\n { [@role] }", e -> {
         MessageConfiguration mc;
         String[] lines = getMessageCommand(e).split("\\n");
         IChannel c;
