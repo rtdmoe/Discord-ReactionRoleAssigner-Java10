@@ -4,6 +4,12 @@
         <xs:attribute name="id" type="xs:long" use="required"/>
     </xs:attributeGroup>
 
+    <xs:simpleType name="enum">
+        <xs:restriction base="xs:token">
+            <xs:pattern value="[a-z]+[a-z_0-9]*"/>
+        </xs:restriction>
+    </xs:simpleType>
+    
     <xs:simpleType name="emote">
         <xs:restriction base="xs:token">
             <xs:pattern value="((.)|((&#60;(a)?:)[a-zA-Z0-9_]+(:)[0-9]+(&#62;)))"/>
@@ -21,8 +27,8 @@
                                     <xs:sequence>
                                         <xs:element name="Entry" maxOccurs="unbounded" minOccurs="0">
                                             <xs:complexType>
-                                                <xs:attribute name="key" type="xs:string" use="required"/>
-                                                <xs:attribute name="value" type="xs:base64Binary"/>
+                                                <xs:attribute name="key" type="enum" use="required"/>
+                                                <xs:attribute name="value" type="xs:base64Binary" use="required"/>
                                             </xs:complexType>
                                         </xs:element>
                                     </xs:sequence>

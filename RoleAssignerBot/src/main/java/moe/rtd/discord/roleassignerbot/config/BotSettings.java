@@ -103,7 +103,7 @@ public class BotSettings {
                     var enList = ((Element) sn.getElementsByTagName("Properties").item(0))
                             .getElementsByTagName("Entry");
                     // Properties Entry loop
-                    for (int k = 0; k < enList.getLength(); k++) {
+                    for(int k = 0; k < enList.getLength(); k++) {
                         var en = (Element) enList.item(k);
                         System.out.println("Properties Entry found: " + en.getAttribute("key"));
                         s.setProperty(
@@ -194,15 +194,17 @@ public class BotSettings {
                         // Properties loop
                         sc.forEachProperty((k, v) -> {
                             Element e;
-                            {
-                                // Create Entry node
-                                e = doc.createElement("Entry");
-                                p.appendChild(e);
-                            }
-                            {
-                                // Set Entry attributes
-                                e.setAttribute("key", k.name().toLowerCase());
-                                e.setAttribute("value", serializeBase64(v));
+                            if(!v.equals(k.getDefaultValue())) {
+                                {
+                                    // Create Entry node
+                                    e = doc.createElement("Entry");
+                                    p.appendChild(e);
+                                }
+                                {
+                                    // Set Entry attributes
+                                    e.setAttribute("key", k.name().toLowerCase());
+                                    e.setAttribute("value", serializeBase64(v));
+                                }
                             }
                         });
                     }
