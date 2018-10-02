@@ -1,6 +1,8 @@
 package moe.rtd.discord.roleassignerbot.gui;
 
 import moe.rtd.discord.roleassignerbot.misc.MiscConstants;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import javax.swing.*;
 
@@ -9,6 +11,11 @@ import javax.swing.*;
  * @author Big J
  */
 public class GUI {
+
+    /**
+     * Log4j2 Logger for this class.
+     */
+    private static Logger log = LogManager.getLogger(GUI.class);
 
     /**
      * Sets up the GUI.
@@ -33,7 +40,9 @@ public class GUI {
      * @return The user input, or null if the program is closing.
      */
     public static String requestUserInput(String request) {
+        log.debug("Queuing for user to input \"" + request + "\".");
         synchronized(requestUserInputLock) {
+            log.info("Requesting user to input \"" + request + "\".");
             return JOptionPane.showInputDialog(
                     null,
                     "Enter " + request + ":",

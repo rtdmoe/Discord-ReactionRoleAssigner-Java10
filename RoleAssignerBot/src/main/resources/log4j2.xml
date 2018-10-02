@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration>
+    <Appenders>
+        <Console name="serr" target="SYSTEM_ERR">
+            <PatternLayout pattern="{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T: &quot;%t&quot; C: &quot;%C&quot; } %m%ex%n"/>
+            <Filters>
+                <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </Console>
+        <Console name="sout" target="SYSTEM_OUT">
+            <PatternLayout pattern="{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T: &quot;%t&quot; C: &quot;%C&quot; } %m%ex%n"/>
+            <Filters>
+                <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
+                <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="DEBUG">
+            <AppenderRef ref="serr"/>
+            <AppenderRef ref="sout"/>
+        </Root>
+    </Loggers>
+</Configuration>

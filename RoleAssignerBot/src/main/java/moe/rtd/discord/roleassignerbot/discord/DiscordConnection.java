@@ -1,5 +1,6 @@
 package moe.rtd.discord.roleassignerbot.discord;
 
+import moe.rtd.discord.roleassignerbot.Main;
 import moe.rtd.discord.roleassignerbot.gui.GUI;
 import moe.rtd.discord.roleassignerbot.misc.MiscConstants;
 import sx.blah.discord.api.ClientBuilder;
@@ -7,7 +8,6 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.IListener;
 import sx.blah.discord.handle.obj.ActivityType;
 import sx.blah.discord.handle.obj.StatusType;
-import sx.blah.discord.util.DiscordException;
 
 import java.lang.reflect.Modifier;
 
@@ -35,7 +35,13 @@ public class DiscordConnection {
             // Creates a new client
             var cb = new ClientBuilder();
 
-            cb.withToken(GUI.requestUserInput("bot token"));
+            String token = GUI.requestUserInput("bot token");
+            if(token == null) {
+                Main.exit(0);
+                return;
+            }
+
+            cb.withToken(token);
             cb.withRecommendedShardCount();
 
             client = cb.build();
@@ -66,7 +72,6 @@ public class DiscordConnection {
 
             // Log in and wait until ready
             client.login();
-
             waitForConnection();
 
             // Change presence to show the bot is setting up
