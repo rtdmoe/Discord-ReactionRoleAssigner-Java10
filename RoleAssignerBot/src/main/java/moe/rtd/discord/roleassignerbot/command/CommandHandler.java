@@ -42,7 +42,13 @@ class CommandHandler implements Runnable {
                     var s = e.getMessage().getContent();
                     s = s.replace("<@" + e.getClient().getOurUser().getLongID() + ">", "");
                     while(s.startsWith(" ") || s.startsWith("\n")) s = s.substring(1);
-                    String m = Commands.valueOf(s.split(" ")[0].toUpperCase()).execute(e);
+                    String m;
+                    String name = s.split(" ")[0].toUpperCase();
+                    try {
+                        m = Commands.valueOf(name).execute(e);
+                    } catch(IllegalArgumentException e1) {
+                        m = "Command \"" + name + "\" does not exist.";
+                    }
                     if(m != null) e.getChannel().sendMessage(e.getAuthor().mention() + " " + m);
                 } catch(CommandSyntaxException cse) {
                     e.getChannel().sendMessage(e.getAuthor().mention() + " Syntax Error: " + cse.getMessage());

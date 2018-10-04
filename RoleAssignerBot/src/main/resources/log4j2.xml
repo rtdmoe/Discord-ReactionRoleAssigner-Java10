@@ -2,23 +2,35 @@
 <Configuration>
     <Appenders>
         <Console name="serr" target="SYSTEM_ERR">
-            <PatternLayout pattern="{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T: &quot;%t&quot; C: &quot;%C&quot; } %m%ex%n"/>
+            <PatternLayout pattern="{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T: &quot;%t&quot; C: &quot;%C&quot; } %m%throwable%n"/>
             <Filters>
                 <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
         </Console>
         <Console name="sout" target="SYSTEM_OUT">
-            <PatternLayout pattern="{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T: &quot;%t&quot; C: &quot;%C&quot; } %m%ex%n"/>
+            <PatternLayout pattern="{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T: &quot;%t&quot; C: &quot;%C&quot; } %m%throwable%n"/>
             <Filters>
                 <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
                 <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
         </Console>
-    </Appenders>
-    <Loggers>
-        <Root level="DEBUG">
+
+        <Async name="console">
             <AppenderRef ref="serr"/>
             <AppenderRef ref="sout"/>
+        </Async>
+    </Appenders>
+    <Loggers>
+        <Logger name="moe.rtd.discord.roleassignerbot" level="DEBUG">
+            <AppenderRef ref="serr"/>
+            <AppenderRef ref="sout"/>
+        </Logger>
+        <Logger name="sx.blah.discord" level="INFO">
+            <AppenderRef ref="serr"/>
+            <AppenderRef ref="sout"/>
+        </Logger>
+        <Root level="DEBUG">
+            <AppenderRef ref="console"/>
         </Root>
     </Loggers>
 </Configuration>

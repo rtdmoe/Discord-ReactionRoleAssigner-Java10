@@ -10,6 +10,8 @@ import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.ActivityType;
 import sx.blah.discord.handle.obj.StatusType;
 
+import java.util.concurrent.atomic.AtomicBoolean;
+
 /**
  * Main class - Starts the program.
  * @author Big J
@@ -19,7 +21,12 @@ public class Main {
     /**
      * Log4j2 Logger for this class.
      */
-    private static Logger log = LogManager.getLogger(Main.class);
+    private static final Logger log = LogManager.getLogger(Main.class);
+
+    /**
+     * Whether or not the bot has been set up yet.
+     */
+    private static final AtomicBoolean setup = new AtomicBoolean(false);
 
     /**
      * Program's entry point method.
@@ -39,9 +46,15 @@ public class Main {
         DiscordConnection.start(); // Connects to Discord, and the events can start queuing up.
         BotSettings.start(); // Starts the event handlers last so that the missed events can be processed first.
 
+        setup.set(true);
+        synchronized(setup) {
+            setup.notifyAll();
+        }
+
         log.debug("Setup complete, changing bot presence.");
 
-        DiscordConnection.getClient().changePresence(StatusType.ONLINE, ActivityType.PLAYING, "with roles"); // Change bot presence to show that it's running.
+        IDiscordClient dc = DiscordConnection.getClient();
+        if(dc != null) dc.changePresence(StatusType.ONLINE, ActivityType.PLAYING, "with roles"); // Change bot presence to show that it's running.
 
         log.info("Startup complete.");
     }
@@ -53,6 +66,16 @@ public class Main {
     private static void exit() {
 
         log.info("Starting shutdown sequence...");
+
+        while(!setup.get()) {
+            synchronized(setup) {
+                try {
+                    setup.wait(1000);
+                } catch (InterruptedException e) {
+                    log.fatal(new RuntimeException("Shutdown thread interrupted.", e));
+                }
+            }
+        }
 
         BotSettings.stop(); // Stops the event handlers so that the event handling isn't interrupted by the closing connection.
         CommandFilter.stop(); // Stops the command reactions and handler.
@@ -76,6 +99,6 @@ public class Main {
 
         log.debug("Bot presence updated, exiting JVM with exit code " + status + ".");
 
-        System.exit(status); // Exit with the specified status code.
+        new Thread(() -> System.exit(status)).start(); // Exit with the specified status code.
     }
 }

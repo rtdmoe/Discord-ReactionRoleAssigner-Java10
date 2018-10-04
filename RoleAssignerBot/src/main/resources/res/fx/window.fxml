@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.image.Image?>
+<TabPane xmlns:fx="http://javafx.com/fxml">
+    <Tab text="Console" closable="false">
+        <graphic>
+            <ImageView>
+                <Image url="/res/fx/console.png"/>
+            </ImageView>
+        </graphic>
+        <fx:include source="console.fxml"/>
+    </Tab>
+    <Tab text="Configuration" closable="false">
+        <graphic>
+            <ImageView>
+                <Image url="/res/fx/config.png"/>
+            </ImageView>
+        </graphic>
+        <fx:include source="config.fxml"/>
+    </Tab>
+</TabPane>

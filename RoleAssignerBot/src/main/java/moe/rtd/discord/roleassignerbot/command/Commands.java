@@ -111,7 +111,7 @@ enum Commands {
         } else {
             c = e.getChannel();
         }
-        BotSettings.addServer(e.getGuild().getLongID()).addChannel(c.getLongID()).addMessage(ID);
+        BotSettings.addServer(e.getGuild().getLongID()).addChannel(c.getLongID()).addMessage(ID).getReactionHandler().start();
         return "Successfully added configuration for " + ID + " in " + c.mention();
     }),
     REMOVE("(remove )([0-9]+)( in (<#)[0-9]+(>))?", "remove [ID] < in [#channel] >", e -> {

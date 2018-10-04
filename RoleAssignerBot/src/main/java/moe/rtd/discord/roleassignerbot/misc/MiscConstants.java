@@ -8,7 +8,7 @@ public final class MiscConstants {
     /**
      * Program title.
      */
-    public static final String TITLE = "Role Assigner Bot";
+    public static final String TITLE = "Discord Bot - Role Assigner";
     /**
      * Arbitrary sleep duration when waiting for a variable to change without being able to use wait and notify.
      */

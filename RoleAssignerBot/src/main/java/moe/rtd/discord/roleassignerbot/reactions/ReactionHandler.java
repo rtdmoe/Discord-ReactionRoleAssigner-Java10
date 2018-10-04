@@ -86,6 +86,7 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
         if(terminated) return;
 
         var client = DiscordConnection.getClient();
+        if(client == null) return;
 
         var channel = messageConfiguration.getParent();
         var server = channel.getParent();
