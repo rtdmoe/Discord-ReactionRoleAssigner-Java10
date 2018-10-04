@@ -78,7 +78,7 @@ enum Commands {
         var ID = Long.parseUnsignedLong(keywords[1]);
         IChannel c;
         if(m.contains("in")) {
-            c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3]));
+            c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3].replaceAll("[<#>]+", "")));
         } else {
             c = e.getChannel();
         }
@@ -107,7 +107,7 @@ enum Commands {
         var ID = Long.parseUnsignedLong(keywords[1]);
         IChannel c;
         if(m.contains("in")) {
-            c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3]));
+            c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3].replaceAll("[<#>]+", "")));
         } else {
             c = e.getChannel();
         }
@@ -120,7 +120,7 @@ enum Commands {
         var ID = Long.parseUnsignedLong(keywords[1]);
         IChannel c;
         if(m.contains("in")) {
-            c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3]));
+            c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3].replaceAll("[<#>]+", "")));
         } else {
             c = e.getChannel();
         }
@@ -143,7 +143,7 @@ enum Commands {
             String[] keywords = lines[0].split("\\s");
             var ID = Long.parseUnsignedLong(keywords[1]);
             if(m.contains("in")) {
-                c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3]));
+                c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3].replaceAll("[<#>]+", "")));
             } else {
                 c = e.getChannel();
             }
@@ -184,7 +184,7 @@ enum Commands {
             String[] keywords = lines[0].split("\\s");
             var ID = Long.parseUnsignedLong(keywords[1]);
             if(m.contains("in")) {
-                c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3]));
+                c = e.getGuild().getChannelByID(Long.parseUnsignedLong(keywords[3].replaceAll("[<#>]+", "")));
             } else {
                 c = e.getChannel();
             }
