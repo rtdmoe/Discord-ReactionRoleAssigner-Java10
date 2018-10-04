@@ -31,7 +31,7 @@ Removes the mapping for the specified role(s) in the configuration for the speci
 
 **NOTE: Extra spaces (more than one in a row, except for the first) can be ignored, as well as spaces at the beginning and end of each line.**
 
-* `[description]`: Replace (including the brackets) with what it's referring to.
+* `[description]`: Replace (excluding the brackets) with what it's referring to.
 * `< parameter >`: Optional parameter.
 * `< parameter1 | parameter2 >`: Use only one of the "`|`" character seperated parameters.
 * `{ parameter }`: List of any amount of new line seperated parameters.
@@ -44,5 +44,5 @@ in a way so that it increases efficiency with multiple configured messages on mu
 especially at high load.
 
 The command handling, however, is single threaded and not seperated for each server or channel,
-because commands shouldn't have to be used very often, and it would be less efficient to actually do so,
+because commands shouldn't have to be used very often, and, it would be less efficient to do so,
 because it would take up more memory and processing power.
