@@ -5,7 +5,7 @@ The configuration is very simple and consists of 8 commands which are listed and
 
 ## Commands:
 
-**NOTE #1: Commands must mention the bot user either on the first line or on a seperate line at the end of the message.**  
+**NOTE #1: Commands must mention the bot user at the beginning of the first line, followed by a space.**  
 **NOTE #2: Commands can only be used by administrators or users with the authorized role for the server.**
 
 * `authorize [@role]`<br>
