@@ -59,6 +59,8 @@ class CommandHandler implements Runnable {
                     if(msg != null) e.getChannel().sendMessage(e.getAuthor().mention() + " " + msg);
                 } catch(CommandSyntaxException cse) {
                     e.getChannel().sendMessage(e.getAuthor().mention() + " Syntax Error: " + cse.getMessage());
+                } catch(RuntimeException re) {
+                    e.getChannel().sendMessage(e.getAuthor().mention() + " Discord Error: " + re.getMessage());
                 }
             } catch(InterruptedException ie) {
                 ie.printStackTrace(); // TODO replace with log4j

@@ -117,12 +117,20 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
 
                 for(IUser u : r.getUsers()) {
                     // ADD ALL MISSING ROLES
-                    if(!(u.hasRole(ROLE))) u.addRole(ROLE);
+                    try {
+                        if(!(u.hasRole(ROLE))) u.addRole(ROLE);
+                    } catch(Exception ex) {
+                        System.err.println("Error adding role: " + ex.getMessage());
+                    }
                 }
 
                 for(IUser u : dMessage.getGuild().getUsersByRole(ROLE)) {
                     // REMOVE ALL UNWANTED ROLES
-                    if(!(r.getUserReacted(u))) u.removeRole(ROLE);
+                    try {
+                        if(!(r.getUserReacted(u))) u.removeRole(ROLE);
+                    } catch(Exception ex) {
+                        System.err.println("Error removing role: " + ex.getMessage());
+                    }
                 }
             }
         }
@@ -150,7 +158,11 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
             if(messageConfiguration.isUsed(EMOTE)) {
                 out += " and accepted.";
                 long ROLE = messageConfiguration.getRole(EMOTE);
-                e.getUser().addRole(e.getGuild().getRoleByID(ROLE));
+                try {
+                    e.getUser().addRole(e.getGuild().getRoleByID(ROLE));
+                } catch(Exception ex) {
+                    System.err.println("Error adding role: " + ex.getMessage());
+                }
             }
 
         } else if(reactionEvent instanceof ReactionRemoveEvent) {
@@ -162,7 +174,11 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
             if(messageConfiguration.isUsed(EMOTE)) {
                 out += " and accepted.";
                 long ROLE = messageConfiguration.getRole(EMOTE);
-                e.getUser().removeRole(e.getGuild().getRoleByID(ROLE));
+                try {
+                    e.getUser().removeRole(e.getGuild().getRoleByID(ROLE));
+                } catch(Exception ex) {
+                    System.err.println("Error removing role: " + ex.getMessage());
+                }
             }
 
         } else throw new RuntimeException("ReactionEvent is neither one of the two known subclasses.");

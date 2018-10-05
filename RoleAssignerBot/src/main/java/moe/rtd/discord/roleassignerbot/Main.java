@@ -72,7 +72,7 @@ public class Main {
                 try {
                     setup.wait(1000);
                 } catch (InterruptedException e) {
-                    log.fatal(new RuntimeException("Shutdown thread interrupted.", e));
+                    log.fatal("Shutdown thread interrupted.", e);
                 }
             }
         }

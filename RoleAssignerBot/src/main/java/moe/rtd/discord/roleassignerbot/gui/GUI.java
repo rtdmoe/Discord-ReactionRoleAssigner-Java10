@@ -79,7 +79,7 @@ public class GUI {
                     tid = new TextInputDialog();
                     tid.setHeaderText("User input required.");
                     tid.setTitle(MiscConstants.TITLE);
-                    ((Stage) tid.getDialogPane().getScene().getWindow()).getIcons().add(new Image(FXMain.class.getResourceAsStream("/res/fx/icon.jpg")));
+                    ((Stage) tid.getDialogPane().getScene().getWindow()).getIcons().add(new Image(FXMain.class.getResourceAsStream("/res/javafx/icon.jpg")));
                 });
             }
 
@@ -94,7 +94,7 @@ public class GUI {
             try {
                 result = future.get();
             } catch (InterruptedException | ExecutionException e) {
-                log.fatal(e);
+                log.fatal("Error occurred while waiting for the user to close the dialog.", e);
             }
 
             log.debug("User input entered: \"" + result.orElse("null") + "\" for \"" + request + "\".");
@@ -118,6 +118,7 @@ public class GUI {
 
         FutureTask<Optional<ButtonType>> future = new FutureTask<>(() -> {
             Alert a = new Alert(type);
+            ((Stage) a.getDialogPane().getScene().getWindow()).getIcons().add(new Image(FXMain.class.getResourceAsStream("/res/javafx/icon.jpg")));
             a.setTitle(title);
             a.setHeaderText(header);
             a.setContentText(content);

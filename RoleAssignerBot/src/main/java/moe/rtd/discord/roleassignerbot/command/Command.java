@@ -13,6 +13,7 @@ interface Command {
      * Checks and executes the command.
      * @return The result of the execution.
      * @throws CommandSyntaxException If there is a syntax error in the command.
+     * @throws RuntimeException If an error occurs while executing the command.
      */
-    String execute(MessageReceivedEvent messageReceivedEvent) throws CommandSyntaxException;
+    String execute(MessageReceivedEvent messageReceivedEvent) throws CommandSyntaxException, RuntimeException;
 }

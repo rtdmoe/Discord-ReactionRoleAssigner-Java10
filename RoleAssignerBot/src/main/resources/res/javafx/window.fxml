@@ -8,7 +8,7 @@
     <Tab text="Console" closable="false">
         <graphic>
             <ImageView>
-                <Image url="/res/fx/console.png"/>
+                <Image url="/res/javafx/console.png"/>
             </ImageView>
         </graphic>
         <fx:include source="console.fxml"/>
@@ -16,7 +16,7 @@
     <Tab text="Configuration" closable="false">
         <graphic>
             <ImageView>
-                <Image url="/res/fx/config.png"/>
+                <Image url="/res/javafx/config.png"/>
             </ImageView>
         </graphic>
         <fx:include source="config.fxml"/>

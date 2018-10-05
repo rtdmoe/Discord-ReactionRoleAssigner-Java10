@@ -277,7 +277,7 @@ enum Commands {
      * Executes this command.
      * @return The output of running this command.
      */
-    String execute(MessageReceivedEvent e) throws CommandSyntaxException {
+    String execute(MessageReceivedEvent e) throws CommandSyntaxException, RuntimeException {
         var s = getMessageCommand(e);
         System.out.println("Executing command \"" + s + "\"."); // TODO replace with log4j
         checkSyntax(s);

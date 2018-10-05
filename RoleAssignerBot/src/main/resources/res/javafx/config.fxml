@@ -1,7 +1,9 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.scene.layout.BorderPane?>
-<BorderPane fx:id="root" xmlns:fx="http://javafx.com/fxml"
+<BorderPane xmlns:fx="http://javafx.com/fxml"
             fx:controller="moe.rtd.discord.roleassignerbot.gui.javafx.ConfigurationController">
-    <!--TODO-->
+    <center>
+        <!--TODO-->
+    </center>
 </BorderPane>

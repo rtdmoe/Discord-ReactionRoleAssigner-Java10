@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration>
+<Configuration packages="moe.rtd.discord.roleassignerbot.gui.javafx">
     <Appenders>
         <Console name="serr" target="SYSTEM_ERR">
             <PatternLayout pattern="{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T: &quot;%t&quot; C: &quot;%C&quot; } %m%throwable%n"/>
@@ -15,22 +15,23 @@
             </Filters>
         </Console>
 
-        <Async name="console">
-            <AppenderRef ref="serr"/>
-            <AppenderRef ref="sout"/>
-        </Async>
+        <WebViewAppender name="wva">
+            <PatternLayout pattern="&lt;div class=&quot;%level&quot;&gt;&lt;b&gt;{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T: &quot;%t&quot; C: &quot;%C&quot; }&lt;/b&gt; %m%throwable%n&lt;/div&gt;"/>
+            <Filters>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </WebViewAppender>
     </Appenders>
     <Loggers>
         <Logger name="moe.rtd.discord.roleassignerbot" level="DEBUG">
-            <AppenderRef ref="serr"/>
-            <AppenderRef ref="sout"/>
+            <AppenderRef ref="wva"/>
         </Logger>
         <Logger name="sx.blah.discord" level="INFO">
-            <AppenderRef ref="serr"/>
-            <AppenderRef ref="sout"/>
+            <AppenderRef ref="wva"/>
         </Logger>
         <Root level="DEBUG">
-            <AppenderRef ref="console"/>
+            <AppenderRef ref="serr"/>
+            <AppenderRef ref="sout"/>
         </Root>
     </Loggers>
 </Configuration>

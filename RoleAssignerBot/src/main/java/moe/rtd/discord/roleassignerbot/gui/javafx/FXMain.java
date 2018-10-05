@@ -14,6 +14,8 @@ import org.apache.logging.log4j.Logger;
 
 import java.io.IOException;
 import java.util.Optional;
+import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -37,6 +39,20 @@ public class FXMain extends Application {
      */
     private static final Object waitForSetup = new Object();
 
+    /**
+     * Object for synchronizing modifications to {@link FXMain#console}.
+     */
+    static final Object lockConsole = new Object();
+    /**
+     * Controller for the console tab.
+     */
+    static ConsoleController console;
+
+    /**
+     * Queue for buffering messages to be appended to the console.
+     */
+    static BlockingQueue<String> logMessageQueue = new ArrayBlockingQueue<>(256, true);
+
     public static void main(String... args) {
         launch(args);
     }
@@ -47,8 +63,7 @@ public class FXMain extends Application {
         log.trace("Adding JavaFX crash hook and shutdown hook.");
 
         Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> {
-            RuntimeException e = new RuntimeException("JavaFX has crashed.", throwable);
-            log.fatal(e);
+            log.fatal("JavaFX has crashed:", throwable);
             Main.exit(-2);
         });
         
@@ -72,7 +87,7 @@ public class FXMain extends Application {
             }
         });
 
-        FXMLLoader window = new FXMLLoader(FXMain.class.getResource("/res/fx/window.fxml"));
+        FXMLLoader window = new FXMLLoader(FXMain.class.getResource("/res/javafx/window.fxml"));
         Scene scene = new Scene(window.load());
         primaryStage.setScene(scene);
 
@@ -81,7 +96,7 @@ public class FXMain extends Application {
         primaryStage.setWidth(640);
         primaryStage.setHeight(340);
 
-        primaryStage.getIcons().add(new Image(FXMain.class.getResourceAsStream("/res/fx/icon.jpg")));
+        primaryStage.getIcons().add(new Image(FXMain.class.getResourceAsStream("/res/javafx/icon.jpg")));
 
         primaryStage.show();
         setup.set(true);
@@ -94,6 +109,15 @@ public class FXMain extends Application {
 
     @Override
     public void stop() {
+        log.trace("JavaFX stopping...");
+
+        synchronized(lockConsole) {
+            if(console != null) {
+                console.stop();
+                console = null;
+            }
+        }
+
         log.info("JavaFX stopped.");
     }
 
@@ -106,7 +130,7 @@ public class FXMain extends Application {
                 try {
                     waitForSetup.wait(1000);
                 } catch (InterruptedException e) {
-                    log.error(e);
+                    log.error("Interrupted while waiting for JavaFX to finish setup.", e);
                 }
             }
         }

@@ -1,0 +1,26 @@
+body {
+    font-size: 12px;
+    font-family: Consolas, monospace;
+    background-color: #2F3136;
+    color: #FFFFFF;
+    padding: 5px, 15px, 5px, 15px;
+}
+
+.FATAL {
+    color: #FF0000;
+}
+.ERROR {
+    color: #BC0000;
+}
+.WARN {
+    color: #FFAE00;
+}
+.INFO {
+    color: #2D9600;
+}
+.DEBUG {
+    color: #0065FF;
+}
+.TRACE {
+    color: #B200FF;
+}
