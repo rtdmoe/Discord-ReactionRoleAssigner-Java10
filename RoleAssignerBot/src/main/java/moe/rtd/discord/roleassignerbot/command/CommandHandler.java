@@ -1,6 +1,7 @@
 package moe.rtd.discord.roleassignerbot.command;
 
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
+import sx.blah.discord.util.RequestBuffer;
 
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
@@ -56,11 +57,20 @@ class CommandHandler implements Runnable {
                     }
 
                     if(cmd == null) msg = "Command \"" + name + "\" does not exist.";
-                    if(msg != null) e.getChannel().sendMessage(e.getAuthor().mention() + " " + msg);
+                    if(msg != null) {
+                        var m = msg;
+                        RequestBuffer.request(() -> {
+                            e.getChannel().sendMessage(e.getAuthor().mention() + " " + m);
+                        });
+                    }
                 } catch(CommandSyntaxException cse) {
-                    e.getChannel().sendMessage(e.getAuthor().mention() + " Syntax Error: " + cse.getMessage());
+                    RequestBuffer.request(() -> {
+                        e.getChannel().sendMessage(e.getAuthor().mention() + " Syntax Error: " + cse.getMessage());
+                    });
                 } catch(RuntimeException re) {
-                    e.getChannel().sendMessage(e.getAuthor().mention() + " Discord Error: " + re.getMessage());
+                    RequestBuffer.request(() -> {
+                        e.getChannel().sendMessage(e.getAuthor().mention() + " Discord Error: " + re.getMessage());
+                    });
                 }
             } catch(InterruptedException ie) {
                 ie.printStackTrace(); // TODO replace with log4j

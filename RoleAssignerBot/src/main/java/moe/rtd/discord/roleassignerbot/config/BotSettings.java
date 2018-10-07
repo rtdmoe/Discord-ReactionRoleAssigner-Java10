@@ -18,6 +18,7 @@ import java.util.Base64;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.function.BiConsumer;
 
 /**
  * Class responsible for the bot settings and configuration, including loading and saving it.
@@ -42,7 +43,7 @@ public class BotSettings {
             var jar = new File(BotSettings.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
             var jp = jar.getPath();
             var path = (jar.isFile()) ? jp.replaceFirst("(.jar)$", ".xml") :
-                    jp + ((jp.endsWith("\\") || jp.endsWith("/")) ? "" : "\\") + "configuration.xml";
+                    jp + ((jp.endsWith("\\") || jp.endsWith("/")) ? "" : "/") + "configuration.xml";
             System.out.println("Save file path: \"" + path + "\".");
             return new File(path);
         } catch (URISyntaxException e) {
@@ -374,6 +375,15 @@ public class BotSettings {
                 i.remove();
                 current.getValue().terminate();
             }
+        }
+    }
+
+    /**
+     * @see Map#forEach(BiConsumer)
+     */
+    public static void forEach(BiConsumer<? super Long, ? super ServerConfiguration> action) {
+        synchronized(lockServerConfigurations) {
+            serverConfigurations.forEach(action);
         }
     }
 

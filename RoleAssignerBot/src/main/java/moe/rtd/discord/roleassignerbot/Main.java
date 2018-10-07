@@ -4,12 +4,16 @@ import moe.rtd.discord.roleassignerbot.command.CommandFilter;
 import moe.rtd.discord.roleassignerbot.config.BotSettings;
 import moe.rtd.discord.roleassignerbot.discord.DiscordConnection;
 import moe.rtd.discord.roleassignerbot.gui.GUI;
+import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.logging.log4j.core.config.Configurator;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.handle.obj.ActivityType;
 import sx.blah.discord.handle.obj.StatusType;
 
+import java.io.File;
+import java.net.URISyntaxException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -21,7 +25,26 @@ public class Main {
     /**
      * Log4j2 Logger for this class.
      */
-    private static final Logger log = LogManager.getLogger(Main.class);
+    private static final Logger log;
+
+    static { // Sets the system property for the Log4j log folder before initializing Log4j.
+        String logFolder;
+        boolean created;
+        {
+            try {
+                var jar = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+                var jp = jar.getPath();
+                logFolder = (jar.isFile()) ? jp.replaceFirst("(.jar)$", "") :
+                        jp + ((jp.endsWith("\\") || jp.endsWith("/")) ? "" : "/") + "logs";
+                created = new File(logFolder).mkdirs();
+            } catch(URISyntaxException e) {
+                throw new Error("Cannot find currently running code.", e);
+            }
+        }
+        System.setProperty("roleAssignerBot.logFolder", logFolder);
+        log = LogManager.getLogger(Main.class);
+        log.debug("Log folder set to: \"" + logFolder + "\", folder has " + (created ? "" : "not ") + "been created.");
+    }
 
     /**
      * Whether or not the bot has been set up yet.
@@ -31,9 +54,19 @@ public class Main {
     /**
      * Program's entry point method.
      * Starts everything in the correct order.
-     * @param args Command line arguments are unused.
+     * @param args Command line arguments: "debug": enable console logging.
      */
     public static void main(String[] args) {
+
+        for(var arg : args) { // Performs command line arguments.
+            switch(arg.toLowerCase()) {
+                case "debug":
+                    Configurator.setRootLevel(Level.DEBUG);
+                    log.warn("Debugging mode activated.");
+                    break;
+                    default: log.warn("Argument \"" + arg.toLowerCase() + "\" has not been recognised.");
+            }
+        }
 
         log.debug("Starting startup sequence...");
 
@@ -84,6 +117,7 @@ public class Main {
         GUI.close(); // Closes the GUI.
 
         log.info("Shutdown complete.");
+        LogManager.shutdown();
     }
 
     /**

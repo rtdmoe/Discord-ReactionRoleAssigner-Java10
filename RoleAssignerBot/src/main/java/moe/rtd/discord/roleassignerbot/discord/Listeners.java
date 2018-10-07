@@ -13,7 +13,7 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.Reactio
  * @author Big J
  */
 @SuppressWarnings("unused")
-class Listeners {
+final class Listeners {
 
     /**
      * Listener for receiving and filtering {@link ReactionEvent}s into the {@link ServerConfiguration}s.

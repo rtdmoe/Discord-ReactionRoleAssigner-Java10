@@ -3,7 +3,7 @@ body {
     font-family: Consolas, monospace;
     background-color: #2F3136;
     color: #FFFFFF;
-    padding: 5px, 15px, 5px, 15px;
+    margin: 10px 5px 15px 5px;
 }
 
 .FATAL {

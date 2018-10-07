@@ -1,14 +1,14 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<Configuration packages="moe.rtd.discord.roleassignerbot.gui.javafx">
+<Configuration packages="moe.rtd.discord.roleassignerbot.gui.javafx,moe.rtd.discord.roleassignerbot.misc.logging">
     <Appenders>
         <Console name="serr" target="SYSTEM_ERR">
-            <PatternLayout pattern="{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T: &quot;%t&quot; C: &quot;%C&quot; } %m%throwable%n"/>
+            <PatternLayout pattern="{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T:&quot;%t&quot; C:&quot;%C&quot; } %m%throwable%n"/>
             <Filters>
                 <ThresholdFilter level="WARN" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
         </Console>
         <Console name="sout" target="SYSTEM_OUT">
-            <PatternLayout pattern="{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T: &quot;%t&quot; C: &quot;%C&quot; } %m%throwable%n"/>
+            <PatternLayout pattern="{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T:&quot;%t&quot; C:&quot;%C&quot; } %m%throwable%n"/>
             <Filters>
                 <ThresholdFilter level="WARN" onMatch="DENY" onMismatch="NEUTRAL"/>
                 <ThresholdFilter level="ALL" onMatch="ACCEPT" onMismatch="DENY"/>
@@ -16,20 +16,39 @@
         </Console>
 
         <WebViewAppender name="wva">
-            <PatternLayout pattern="&lt;div class=&quot;%level&quot;&gt;&lt;b&gt;{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T: &quot;%t&quot; C: &quot;%C&quot; }&lt;/b&gt; %m%throwable%n&lt;/div&gt;"/>
+            <PatternLayout pattern="&lt;div class=&quot;%level&quot;&gt;&lt;b&gt;{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T:&quot;%t&quot; C:&quot;%C{2}&quot; M:&quot;%markerSimpleName&quot; }&lt;/b&gt; %m%throwable%n&lt;/div&gt;"/>
             <Filters>
                 <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
             </Filters>
         </WebViewAppender>
+
+        <RollingFile name="rfa" immediateFlush="false" append="true"
+                     fileName="${sys:roleAssignerBot.logFolder}/current.html"
+                     filePattern="${sys:roleAssignerBot.logFolder}/%d{yyyy-MM-dd}/Hour %d{HH}-%i.html">
+            <Policies>
+                <OnStartupTriggeringPolicy/>
+                <SizeBasedTriggeringPolicy size="1MB"/>
+                <TimeBasedTriggeringPolicy/>
+            </Policies>
+            <PatternLayout
+                    pattern="&lt;div class=&quot;%level %markerSimpleName&quot;&gt;&lt;b&gt;{ [%d{dd/MM/yyyy HH:mm:ss.SSS}] T:&quot;%t&quot; C:&quot;%C{2}&quot; M:&quot;%markerSimpleName&quot; }&lt;/b&gt; %m%throwable%n&lt;/div&gt;"
+                    header="&lt;!DOCTYPE html&gt;&lt;html&gt;&lt;head&gt;&lt;meta charset=&quot;UTF-8&quot;&gt;&lt;style&gt;body {font-size: 12px;font-family: Consolas, monospace;background-color: #2F3136;color: #FFFFFF;margin: 20px 10px 100px 10px;}.FATAL {color: #FF0000;}.ERROR {color: #BC0000;}.WARN {color: #FFAE00;}.INFO {color: #2D9600;}.DEBUG {color: #0065FF;}.TRACE {color: #B200FF;}&lt;/style&gt;&lt;/head&gt;&lt;body&gt;&lt;div id=&quot;console&quot;&gt;"
+                    footer="&lt;/div&gt;&lt;/body&gt;&lt;/html&gt;"/>
+            <Filters>
+                <ThresholdFilter level="DEBUG" onMatch="ACCEPT" onMismatch="DENY"/>
+            </Filters>
+        </RollingFile>
     </Appenders>
     <Loggers>
-        <Logger name="moe.rtd.discord.roleassignerbot" level="DEBUG">
+        <Logger name="moe.rtd.discord.roleassignerbot" level="DEBUG" additivity="false">
             <AppenderRef ref="wva"/>
+            <AppenderRef ref="rfa"/>
         </Logger>
-        <Logger name="sx.blah.discord" level="INFO">
+        <Logger name="sx.blah.discord" level="INFO" additivity="false">
             <AppenderRef ref="wva"/>
+            <AppenderRef ref="rfa"/>
         </Logger>
-        <Root level="DEBUG">
+        <Root level="OFF">
             <AppenderRef ref="serr"/>
             <AppenderRef ref="sout"/>
         </Root>

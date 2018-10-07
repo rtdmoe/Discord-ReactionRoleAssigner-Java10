@@ -10,8 +10,9 @@ import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.Reactio
 import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionEvent;
 import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionRemoveEvent;
 import sx.blah.discord.handle.obj.IReaction;
-import sx.blah.discord.handle.obj.IRole;
 import sx.blah.discord.handle.obj.IUser;
+import sx.blah.discord.util.RateLimitException;
+import sx.blah.discord.util.RequestBuffer;
 
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -112,25 +113,37 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
 
         for(IReaction r : reactions) {
             if(messageConfiguration.isUsed(r.getEmoji().toString())) {
-                IRole ROLE = dMessage.getGuild().getRoleByID(messageConfiguration.getRole(r.getEmoji().toString()));
+                var ROLE = dMessage.getGuild().getRoleByID(messageConfiguration.getRole(r.getEmoji().toString()));
                 // FOR EACH CONFIGURED REACTION:
 
                 for(IUser u : r.getUsers()) {
                     // ADD ALL MISSING ROLES
-                    try {
-                        if(!(u.hasRole(ROLE))) u.addRole(ROLE);
-                    } catch(Exception ex) {
-                        System.err.println("Error adding role: " + ex.getMessage());
-                    }
+                    RequestBuffer.request(() -> {
+                        try {
+                            if(!(u.hasRole(ROLE))) {
+                                u.addRole(ROLE);
+                                System.out.println("Added role: " + ROLE.mention() + " to " + u.mention());
+                            }
+                        } catch(Exception ex) {
+                            if(ex instanceof RateLimitException) throw ex;
+                            System.err.println("Error adding role: " + ex.getMessage());
+                        }
+                    });
                 }
 
                 for(IUser u : dMessage.getGuild().getUsersByRole(ROLE)) {
                     // REMOVE ALL UNWANTED ROLES
-                    try {
-                        if(!(r.getUserReacted(u))) u.removeRole(ROLE);
-                    } catch(Exception ex) {
-                        System.err.println("Error removing role: " + ex.getMessage());
-                    }
+                    RequestBuffer.request(() -> {
+                        try {
+                            if(!(r.getUserReacted(u))) {
+                                u.removeRole(ROLE);
+                                System.out.println("Removed role: " + ROLE.mention() + " from " + u.mention());
+                            }
+                        } catch(Exception ex) {
+                            if(ex instanceof RateLimitException) throw ex;
+                            System.err.println("Error removing role: " + ex.getMessage());
+                        }
+                    });
                 }
             }
         }
@@ -157,12 +170,16 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
             String EMOTE = e.getReaction().getEmoji().toString();
             if(messageConfiguration.isUsed(EMOTE)) {
                 out += " and accepted.";
-                long ROLE = messageConfiguration.getRole(EMOTE);
-                try {
-                    e.getUser().addRole(e.getGuild().getRoleByID(ROLE));
-                } catch(Exception ex) {
-                    System.err.println("Error adding role: " + ex.getMessage());
-                }
+                var ROLE = e.getGuild().getRoleByID(messageConfiguration.getRole(EMOTE));
+                RequestBuffer.request(() -> {
+                    try {
+                        e.getUser().addRole(ROLE);
+                        System.out.println("Added role: " + ROLE.mention() + " to " + e.getUser().mention());
+                    } catch(Exception ex) {
+                        if(ex instanceof RateLimitException) throw ex;
+                        System.err.println("Error adding role: " + ex.getMessage());
+                    }
+                });
             }
 
         } else if(reactionEvent instanceof ReactionRemoveEvent) {
@@ -173,12 +190,16 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
             String EMOTE = e.getReaction().getEmoji().toString();
             if(messageConfiguration.isUsed(EMOTE)) {
                 out += " and accepted.";
-                long ROLE = messageConfiguration.getRole(EMOTE);
-                try {
-                    e.getUser().removeRole(e.getGuild().getRoleByID(ROLE));
-                } catch(Exception ex) {
-                    System.err.println("Error removing role: " + ex.getMessage());
-                }
+                var ROLE = e.getGuild().getRoleByID(messageConfiguration.getRole(EMOTE));
+                RequestBuffer.request(() -> {
+                    try {
+                        e.getUser().removeRole(ROLE);
+                        System.out.println("Removed role: " + ROLE.mention() + " from " + e.getUser().mention());
+                    } catch(Exception ex) {
+                        if(ex instanceof RateLimitException) throw ex;
+                        System.err.println("Error removing role: " + ex.getMessage());
+                    }
+                });
             }
 
         } else throw new RuntimeException("ReactionEvent is neither one of the two known subclasses.");

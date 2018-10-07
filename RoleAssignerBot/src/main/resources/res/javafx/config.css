@@ -1,0 +1,61 @@
+.root {
+    -fx-base: #2F3136;
+}
+
+/* ##### CONFIGURATION TAB ##### */
+
+.configBar {
+    -fx-padding: 3 3 3 16;
+    -fx-spacing: 3;
+    -fx-font-size: 9pt;
+    -fx-alignment: center-left;
+}
+
+.configContainer {
+    -fx-background-color: #2F3136;
+    -fx-text-fill: #F0F0F0;
+    -fx-padding: 5;
+    -fx-font-size: 18pt;
+}
+
+/* ##### CONFIGURATION BAR ##### */
+
+.configBarChild {
+    -fx-pref-height: 24;
+    -fx-min-height: 24;
+    -fx-max-height: 24;
+}
+
+/* ##### CONFIGURATION CONTAINER ##### */
+
+.VBox {
+    -fx-spacing: 8;
+}
+
+.elementID {
+    -fx-background-color: #7900AB;
+    -fx-padding: 8;
+}
+
+.channel {
+    -fx-background-color: #36393F;
+    -fx-padding: 8;
+}
+
+.message {
+    -fx-background-color: #42464D;
+    -fx-padding: 8;
+}
+
+.entry {
+    -fx-background-color: #36393F;
+    -fx-padding: 5 5 5 8;
+}
+
+.role {
+    -fx-font-weight: bold;
+}
+
+.spacer {
+    -fx-font-weight: lighter;
+}
