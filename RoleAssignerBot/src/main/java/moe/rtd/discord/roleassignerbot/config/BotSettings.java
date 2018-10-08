@@ -100,7 +100,6 @@ public class BotSettings {
         Element root = (Element) doc.getElementsByTagName("BotSettings").item(0);
 
         {
-            // TODO replace console with log4j
             var snList = root.getElementsByTagName("ServerConfiguration");
             // Server loop
             for(int i = 0; i < snList.getLength(); i++) {
@@ -183,7 +182,6 @@ public class BotSettings {
         }
 
         {
-            // TODO add logging to everything
             synchronized(lockServerConfigurations) {
                 // Server loop
                 serverConfigurations.forEach((sID, sc) -> {
