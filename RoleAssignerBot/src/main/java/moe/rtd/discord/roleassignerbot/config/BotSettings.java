@@ -1,5 +1,8 @@
 package moe.rtd.discord.roleassignerbot.config;
 
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
@@ -27,6 +30,11 @@ import java.util.function.BiConsumer;
 public class BotSettings {
 
     /**
+     * Log4j2 Logger for this class.
+     */
+    private static final Logger log = LogManager.getLogger(BotSettings.class);
+
+    /**
      * Object for synchronizing server map modifications.
      */
     private static final Object lockServerConfigurations = new Object();
@@ -44,7 +52,7 @@ public class BotSettings {
             var jp = jar.getPath();
             var path = (jar.isFile()) ? jp.replaceFirst("(.jar)$", ".xml") :
                     jp + ((jp.endsWith("\\") || jp.endsWith("/")) ? "" : "/") + "configuration.xml";
-            System.out.println("Save file path: \"" + path + "\".");
+            log.info(Markers.CONFIG, "Save file path: \"" + path + "\".");
             return new File(path);
         } catch (URISyntaxException e) {
             throw new RuntimeException("Failed to locate save file.", e);
@@ -97,7 +105,7 @@ public class BotSettings {
             // Server loop
             for(int i = 0; i < snList.getLength(); i++) {
                 var sn = (Element) snList.item(i);
-                System.out.println("Server found: " + sn.getAttribute("id"));
+                log.debug(Markers.CONFIG, "Server found: " + sn.getAttribute("id"));
                 var s = addServer(Long.parseUnsignedLong(sn.getAttributes().getNamedItem("id").getNodeValue()));
                 // Server Properties
                 {
@@ -106,7 +114,7 @@ public class BotSettings {
                     // Properties Entry loop
                     for(int k = 0; k < enList.getLength(); k++) {
                         var en = (Element) enList.item(k);
-                        System.out.println("Properties Entry found: " + en.getAttribute("key"));
+                        log.debug(Markers.CONFIG, "Properties Entry found: " + en.getAttribute("key"));
                         s.setProperty(
                                 ServerConfiguration.Properties.valueOf(en.getAttribute("key").toUpperCase()),
                                 deserializeBase64(en.getAttribute("value")));
@@ -116,19 +124,19 @@ public class BotSettings {
                 // Channel loop
                 for(int j = 0; j < cnList.getLength(); j++) {
                     var cn = (Element) cnList.item(j);
-                    System.out.println("Channel found: " + cn.getAttribute("id"));
+                    log.debug(Markers.CONFIG, "Channel found: " + cn.getAttribute("id"));
                     var c = s.addChannel(Long.parseUnsignedLong(cn.getAttributes().getNamedItem("id").getNodeValue()));
                     var mnList = cn.getElementsByTagName("MessageConfiguration");
                     // Message loop
                     for(int k = 0; k < mnList.getLength(); k++) {
                         var mn = (Element) mnList.item(k);
-                        System.out.println("Message found: " + mn.getAttribute("id"));
+                        log.debug(Markers.CONFIG, "Message found: " + mn.getAttribute("id"));
                         var m = c.addMessage(Long.parseUnsignedLong(mn.getAttribute("id")));
                         var enList = mn.getElementsByTagName("Entry");
                         // Message Configuration loop
                         for(int l = 0; l < enList.getLength(); l++) {
                             var en = (Element) enList.item(l);
-                            System.out.println("Message Entry found: " +
+                            log.debug(Markers.CONFIG, "Message Entry found: " +
                                     en.getAttribute("role") + " to " + en.getAttribute("emote"));
                             m.setRole(
                                     Long.parseUnsignedLong(en.getAttribute("role")),
@@ -139,6 +147,7 @@ public class BotSettings {
                 }
             }
         }
+        log.info(Markers.CONFIG, "Bot configuration has been loaded.");
     }
 
     /**
@@ -286,6 +295,7 @@ public class BotSettings {
         } catch (SAXException e) {
             throw new RuntimeException("Saved file is invalid.", e);
         }
+        log.info(Markers.CONFIG, "Bot configuration has been saved.");
     }
 
     /**
@@ -350,6 +360,7 @@ public class BotSettings {
                                     .forEach((k2, v2) -> v2
                                             .getReactionHandler().start())));
         }
+        log.info(Markers.CONFIG, "Bot configuration threads have been started.");
     }
 
     /**
@@ -363,6 +374,7 @@ public class BotSettings {
                                     .forEach((k2, v2) -> v2
                                             .getReactionHandler().terminate())));
         }
+        log.info(Markers.CONFIG, "Bot configuration threads have been stopped.");
     }
 
     /**
@@ -376,6 +388,7 @@ public class BotSettings {
                 current.getValue().terminate();
             }
         }
+        log.info(Markers.CONFIG, "Bot settings have been terminated.");
     }
 
     /**
@@ -423,7 +436,7 @@ public class BotSettings {
      * Removes a {@link ServerConfiguration} from the server map.
      * @param ID ID of the server to remove.
      */
-    public static void removeServer(long ID) {
+    static void removeServer(long ID) {
         ServerConfiguration server;
         synchronized(lockServerConfigurations) {
             if(serverConfigurations == null) throw new IllegalStateException("Configuration is not loaded.");

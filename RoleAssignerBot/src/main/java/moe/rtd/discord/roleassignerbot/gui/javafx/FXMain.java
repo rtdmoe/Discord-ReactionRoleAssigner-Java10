@@ -9,6 +9,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import moe.rtd.discord.roleassignerbot.Main;
 import moe.rtd.discord.roleassignerbot.misc.MiscConstants;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -60,15 +61,14 @@ public class FXMain extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         
-        log.trace("Adding JavaFX crash hook and shutdown hook.");
+        log.debug(Markers.JAVAFX, "JavaFX setting up...");
 
         Thread.currentThread().setUncaughtExceptionHandler((thread, throwable) -> {
-            log.fatal("JavaFX has crashed:", throwable);
+            log.fatal(Markers.JAVAFX, "JavaFX has crashed:", throwable);
             Main.exit(-2);
         });
-        
-        log.trace("Added JavaFX crash hook and shutdown hook.");
-        log.debug("Setting up GUI...");
+
+        log.debug(Markers.JAVAFX, "Setting up GUI...");
 
         primaryStage.setTitle(MiscConstants.TITLE);
         primaryStage.setOnCloseRequest((we) -> {
@@ -104,21 +104,21 @@ public class FXMain extends Application {
             waitForSetup.notifyAll();
         }
 
-        log.info("GUI setup complete.");
+        log.info(Markers.JAVAFX, "JavaFX setup complete.");
     }
 
     @Override
     public void stop() {
-        log.trace("JavaFX stopping...");
+        log.debug(Markers.JAVAFX, "JavaFX stopping...");
 
         synchronized(lockConsole) {
             if(console != null) {
-                console.stop();
+                console.terminate();
                 console = null;
             }
         }
 
-        log.info("JavaFX stopped.");
+        log.info(Markers.JAVAFX, "JavaFX stopped.");
     }
 
     /**
@@ -130,7 +130,7 @@ public class FXMain extends Application {
                 try {
                     waitForSetup.wait(1000);
                 } catch (InterruptedException e) {
-                    log.error("Interrupted while waiting for JavaFX to finish setup.", e);
+                    log.fatal(Markers.JAVAFX, "Interrupted while waiting for JavaFX to finish setup.", e);
                 }
             }
         }

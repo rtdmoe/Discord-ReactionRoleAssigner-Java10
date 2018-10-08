@@ -8,6 +8,7 @@ import javafx.scene.image.Image;
 import javafx.stage.Stage;
 import moe.rtd.discord.roleassignerbot.gui.javafx.FXMain;
 import moe.rtd.discord.roleassignerbot.misc.MiscConstants;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -35,25 +36,25 @@ public class GUI {
      * Sets up the GUI.
      */
     public static void setup() {
-        log.trace("Starting GUI.");
+        log.debug(Markers.GUI, "Starting GUI.");
 
         fxThread.setName("JavaFX-Launcher-Thread");
         fxThread.start();
 
         FXMain.waitForSetup();
 
-        log.trace("GUI started.");
+        log.info(Markers.GUI, "GUI setup complete.");
     }
 
     /**
      * Closes the GUI.
      */
     public static void close() {
-        log.trace("Closing GUI.");
+        log.debug(Markers.GUI, "Closing GUI.");
 
         Platform.exit();
 
-        log.trace("GUI closed.");
+        log.info(Markers.GUI, "GUI closed.");
     }
 
     /**
@@ -70,9 +71,9 @@ public class GUI {
      * @return The user input, or null if the program is closing.
      */
     public static String requestUserInput(String request) {
-        log.trace("Queuing for user to input \"" + request + "\".");
+        log.debug(Markers.GUI, "Queuing for user to input \"" + request + "\".");
         synchronized(requestUserInputLock) {
-            log.debug("Requesting user to input \"" + request + "\".");
+            log.info(Markers.GUI, "Requesting user to input \"" + request + "\".");
 
             if(tid == null) {
                 Platform.runLater(() -> {
@@ -94,10 +95,10 @@ public class GUI {
             try {
                 result = future.get();
             } catch (InterruptedException | ExecutionException e) {
-                log.fatal("Error occurred while waiting for the user to close the dialog.", e);
+                log.fatal(Markers.GUI, "Error occurred while waiting for the user to close the dialog.", e);
             }
 
-            log.debug("User input entered: \"" + result.orElse("null") + "\" for \"" + request + "\".");
+            log.debug(Markers.GUI, "User input entered: \"" + result.orElse("null") + "\" for \"" + request + "\".");
 
             return result.orElse(null);
         }
@@ -114,7 +115,7 @@ public class GUI {
      * @throws InterruptedException If the thread is interrupted while waiting for the user to
      */
     public static Optional<ButtonType> showDialog(Alert.AlertType type, String title, String header, String content, ButtonType... buttonTypes) throws InterruptedException {
-        log.debug("Showing dialog: " + content);
+        log.info(Markers.GUI, "Showing dialog: " + content);
 
         FutureTask<Optional<ButtonType>> future = new FutureTask<>(() -> {
             Alert a = new Alert(type);

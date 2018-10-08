@@ -2,6 +2,7 @@ package moe.rtd.discord.roleassignerbot.reactions;
 
 import moe.rtd.discord.roleassignerbot.config.ChannelConfiguration;
 import moe.rtd.discord.roleassignerbot.misc.DataFormatter;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
 import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionEvent;
 
 /**
@@ -18,16 +19,11 @@ public class ChannelReactionFilter extends ReactionFilter<ChannelConfiguration> 
     }
 
     @Override
-    protected void filter(ReactionEvent reactionEvent) {
-        var ID = reactionEvent.getMessageID();
-        var message = getOwner().getMessage(ID);
+    protected void filter(ReactionEvent reactionEvent) throws InterruptedException {
+        var message = getOwner().getMessage(reactionEvent.getMessageID());
         if(message != null) {
-            System.out.println("Reaction filtered: " + DataFormatter.format(message));
-            try {
-                message.getReactionHandler().accept(reactionEvent);
-            } catch(InterruptedException e) {
-                e.printStackTrace(); // TODO replace with log4j
-            }
+            log.trace(Markers.REACTIONS, "Reaction filtered to: " + DataFormatter.format(message));
+            message.getReactionHandler().accept(reactionEvent);
         }
     }
 }

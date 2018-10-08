@@ -2,6 +2,9 @@ package moe.rtd.discord.roleassignerbot.command;
 
 import moe.rtd.discord.roleassignerbot.config.BotSettings;
 import moe.rtd.discord.roleassignerbot.config.ServerConfiguration;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.Permissions;
 
@@ -13,6 +16,11 @@ import java.util.concurrent.BlockingQueue;
  * @author Big J
  */
 public class CommandFilter implements Runnable {
+
+    /**
+     * Log4j2 Logger for this class.
+     */
+    private static final Logger log = LogManager.getLogger(CommandFilter.class);
 
     /**
      * Queue for storing reaction events to be processed.
@@ -34,8 +42,7 @@ public class CommandFilter implements Runnable {
      */
     @Override
     public void run() {
-        // TODO add log4j
-        System.out.println("Command reactions starting.");
+        log.info(Markers.COMMAND, "Command filter has started.");
         while(!stopped) {
             MessageReceivedEvent e;
             try {
@@ -48,9 +55,10 @@ public class CommandFilter implements Runnable {
                     CommandHandler.accept(e);
                 }
             } catch(InterruptedException ie) {
-                ie.printStackTrace(); // TODO replace with log4j
+                log.warn(Markers.COMMAND, "Command filter has been interrupted.");
             }
         }
+        log.info(Markers.COMMAND, "Command filter has stopped.");
     }
 
     /**
@@ -60,8 +68,8 @@ public class CommandFilter implements Runnable {
      */
     public static void accept(MessageReceivedEvent messageReceivedEvent) throws InterruptedException {
         if(stopped) return;
-        System.out.println("Received command \"" +
-                Integer.toHexString(messageReceivedEvent.getMessage().hashCode()).toUpperCase() + "\"."); // TODO replace with log4j
+        log.debug(Markers.COMMAND, "Received command \"" +
+                Integer.toHexString(messageReceivedEvent.getMessage().hashCode()).toUpperCase() + "\".");
         queue.put(messageReceivedEvent);
     }
 
@@ -73,6 +81,7 @@ public class CommandFilter implements Runnable {
             thread.start();
         }
         CommandHandler.start();
+        log.info(Markers.COMMAND, "Command handling setup complete.");
     }
 
     /**
@@ -88,7 +97,7 @@ public class CommandFilter implements Runnable {
             try {
                 thread.join();
             } catch(InterruptedException e) {
-                e.printStackTrace(); // TODO replace with log4j
+                log.fatal(Markers.COMMAND, "Thread interrupted while waiting for command filter to stop.", e);
             }
         }
     }

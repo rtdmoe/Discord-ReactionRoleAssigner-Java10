@@ -4,6 +4,9 @@ import javafx.scene.control.Alert;
 import moe.rtd.discord.roleassignerbot.Main;
 import moe.rtd.discord.roleassignerbot.gui.GUI;
 import moe.rtd.discord.roleassignerbot.misc.MiscConstants;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sx.blah.discord.api.ClientBuilder;
 import sx.blah.discord.api.IDiscordClient;
 import sx.blah.discord.api.events.IListener;
@@ -18,6 +21,11 @@ import java.lang.reflect.Modifier;
  * @author Big J
  */
 public class DiscordConnection {
+
+    /**
+     * Log4j2 Logger for this class.
+     */
+    private static final Logger log = LogManager.getLogger(DiscordConnection.class);
 
     /**
      * Object for synchronizing changes to the {@link DiscordConnection#client}.
@@ -53,7 +61,7 @@ public class DiscordConnection {
                     try {
                         GUI.showDialog(Alert.AlertType.ERROR, MiscConstants.TITLE, "Discord Error", e.getErrorMessage());
                     } catch (InterruptedException ie) {
-                        return;
+                        log.fatal(Markers.DISCORD, "Thread interrupted while waiting for user to close GUI dialog.", e);
                     }
                 }
             } while(discordException != null);
@@ -61,25 +69,27 @@ public class DiscordConnection {
             // Register listeners
             var ed = client.getDispatcher();
 
-            System.out.println("Registering listeners."); // TODO replace with log4j
+            log.debug(Markers.DISCORD, "Registering listeners.");
             for(var f : Listeners.class.getDeclaredFields()) {
-                System.out.print(f.getName());
+                StringBuilder msg = new StringBuilder("Found \"");
+                msg.append(f.getName());
+                msg.append("\"");
                 if(Modifier.isStatic(f.getModifiers())) {
-                    System.out.print(" static");
+                    msg.append(", is static");
                     if(f.canAccess(null)) {
-                        System.out.print(" accessible");
+                        msg.append(", accessible");
                         if(IListener.class.isAssignableFrom(f.getType())) {
-                            System.out.print(" listener");
-                            System.out.println();
+                            msg.append(", and a listener");
+                            log.debug(Markers.DISCORD, msg.toString());
                             try {
                                 ed.registerListener(f.get(null));
-                                System.out.println("Registered listener \"" + f.getName() + "\"."); // TODO replace with log4j
-                            } catch(IllegalAccessException e) {
-                                e.printStackTrace(); // TODO replace with log4j
+                                log.info(Markers.DISCORD, "Registered listener \"" + f.getName() + "\".");
+                            } catch(Exception e) {
+                                log.fatal(Markers.DISCORD, "Error registering listener: ", e);
                             }
-                        } else System.out.println();
-                    }
-                }
+                        } else log.debug(Markers.DISCORD, msg.toString());
+                    } else log.debug(Markers.DISCORD, msg.toString());
+                } else log.debug(Markers.DISCORD, msg.toString());
             }
 
             // Log in and wait until ready
@@ -90,13 +100,14 @@ public class DiscordConnection {
                     try {
                         Thread.sleep(MiscConstants.ARBITRARY_SLEEP_DURATION);
                     } catch(InterruptedException e) {
-                        e.printStackTrace(); // TODO replace with log4j
+                        log.error(Markers.DISCORD, "Thread interrupted while waiting for Discord to login.", e);
                     }
                 }
             }
 
             // Change presence to show the bot is setting up
             client.changePresence(StatusType.IDLE, ActivityType.PLAYING, "setting up...");
+            log.info(Markers.DISCORD, "Discord setup complete.");
         }
     }
 

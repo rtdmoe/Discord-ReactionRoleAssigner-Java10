@@ -11,6 +11,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import moe.rtd.discord.roleassignerbot.config.BotSettings;
 import moe.rtd.discord.roleassignerbot.discord.DiscordConnection;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -39,7 +40,7 @@ public class ConfigurationController {
      * Method called when the context menu for {@link #serverSelection} is opened.
      */
     @FXML private void contextMenu() {
-        log.debug("Refreshing server list...");
+        log.debug(Markers.JAVAFX, "Refreshing server list...");
 
         var items = serverSelection.getItems();
         items.clear();
@@ -50,14 +51,14 @@ public class ConfigurationController {
      * Method called when the refresh button is pressed, refreshes the displayed configuration.
      */
     @FXML private void refresh() {
-        log.debug("Refreshing configuration...");
+        log.debug(Markers.JAVAFX, "Refreshing configuration...");
 
         var selection = serverSelection.getValue();
         if(selection == null) return;
         var sc = BotSettings.getServer(selection);
         if(sc == null) return;
 
-        log.debug("Building configuration for server '" + selection + "'.");
+        log.debug(Markers.JAVAFX, "Building configuration for server '" + selection + "'.");
 
         config.getChildren().clear();
 
@@ -106,7 +107,7 @@ public class ConfigurationController {
                                 }
 
                             } catch(RuntimeException roleException) {
-                                log.error("Cannot find role \"" + Long.toUnsignedString(ID) + "\": " + roleException.getMessage());
+                                log.error(Markers.JAVAFX, "Cannot find role \"" + Long.toUnsignedString(ID) + "\": " + roleException.getMessage());
 
                                 role.setText("<@&" + Long.toUnsignedString(ID) + ">");
                                 role.setTextFill(Color.web("#99AAB5"));
@@ -129,14 +130,14 @@ public class ConfigurationController {
                                 Tooltip.install(emoji, new Tooltip(e));
 
                             } catch(RuntimeException emojiException) {
-                                log.error("Cannot find Discord emoji \"" + e + "\": " + emojiException.getMessage());
+                                log.error(Markers.JAVAFX, "Cannot find Discord emoji \"" + e + "\": " + emojiException.getMessage());
 
                                 emoji = new Label(e);
                                 ((Label) emoji).setTextFill(Color.web("#BC0000"));
                             }
 
                         } catch(RuntimeException serverException) {
-                            log.error("Cannot find Discord server \"" + Long.toUnsignedString(selection) + "\": " + serverException.getMessage());
+                            log.error(Markers.JAVAFX, "Cannot find Discord server \"" + Long.toUnsignedString(selection) + "\": " + serverException.getMessage());
 
                             role.setText("<@&" + Long.toUnsignedString(ID) + ">");
                             role.setTextFill(Color.web("#99AAB5"));
@@ -159,6 +160,6 @@ public class ConfigurationController {
             config.getChildren().add(ccn);
         });
 
-        log.debug("Displaying refreshed configuration for the selected server.");
+        log.debug(Markers.JAVAFX, "Displaying refreshed configuration for the selected server.");
     }
 }

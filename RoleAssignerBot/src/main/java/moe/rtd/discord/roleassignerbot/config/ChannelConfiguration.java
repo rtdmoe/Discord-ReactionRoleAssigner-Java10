@@ -1,11 +1,17 @@
 package moe.rtd.discord.roleassignerbot.config;
 
+import moe.rtd.discord.roleassignerbot.misc.DataFormatter;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
 import moe.rtd.discord.roleassignerbot.reactions.ChannelReactionFilter;
 import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 /**
  * Class responsible for one Discord channel per instance.
@@ -13,6 +19,11 @@ import java.util.function.BiConsumer;
  * @author Big J
  */
 public class ChannelConfiguration extends IdentifiableChild<ServerConfiguration> implements Terminable {
+
+    /**
+     * Log4j2 Logger for this class.
+     */
+    private static final Logger log = LogManager.getLogger(ChannelConfiguration.class);
 
     /**
      * Map of all messages in this channel that the bot is configured for.
@@ -37,6 +48,7 @@ public class ChannelConfiguration extends IdentifiableChild<ServerConfiguration>
         super(ID, parent);
         messageConfigurations = new TreeMap<>();
         reactionFilter = new ChannelReactionFilter(this);
+        log.debug(Markers.CONFIG, "Channel configuration " + DataFormatter.format(this) + " has been constructed.");
     }
 
     /**
@@ -75,7 +87,7 @@ public class ChannelConfiguration extends IdentifiableChild<ServerConfiguration>
      * Removes a {@link MessageConfiguration} from the message map.
      * @param ID ID of the message to remove.
      */
-    public void removeMessage(long ID) {
+    void removeMessage(long ID) {
         if(terminated) return;
         MessageConfiguration message;
         synchronized(messageConfigurations) {
@@ -94,6 +106,15 @@ public class ChannelConfiguration extends IdentifiableChild<ServerConfiguration>
     public void forEach(BiConsumer<? super Long, ? super MessageConfiguration> action) {
         synchronized(messageConfigurations) {
             messageConfigurations.forEach(action);
+        }
+    }
+
+    /**
+     * @see java.util.stream.Stream#anyMatch(Predicate)
+     */
+    boolean anyMatch(BiPredicate<? super Long, ? super MessageConfiguration> predicate) {
+        synchronized(messageConfigurations) {
+            return messageConfigurations.entrySet().stream().anyMatch((e) -> predicate.test(e.getKey(), e.getValue()));
         }
     }
 
@@ -118,5 +139,6 @@ public class ChannelConfiguration extends IdentifiableChild<ServerConfiguration>
             messageConfigurations.forEach((ID, messageConfigurations) -> messageConfigurations.terminate());
             messageConfigurations.clear();
         }
+        log.debug(Markers.CONFIG, "Channel configuration " + DataFormatter.format(this) + " has been terminated.");
     }
 }

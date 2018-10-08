@@ -1,11 +1,17 @@
 package moe.rtd.discord.roleassignerbot.config;
 
 import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
+import moe.rtd.discord.roleassignerbot.misc.DataFormatter;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
 import moe.rtd.discord.roleassignerbot.reactions.ReactionHandler;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.BiConsumer;
+import java.util.function.BiPredicate;
+import java.util.function.Predicate;
 
 /**
  * Class responsible for one Discord message per instance.
@@ -13,6 +19,11 @@ import java.util.function.BiConsumer;
  * @author Big J
  */
 public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration> implements Terminable {
+
+    /**
+     * Log4j2 Logger for this class.
+     */
+    private static final Logger log = LogManager.getLogger(MessageConfiguration.class);
 
     /**
      * @see ReactionHandler
@@ -38,6 +49,7 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
         super(ID, parent);
         configuration = new TreeMap<>();
         reactionHandler = new ReactionHandler(this);
+        log.debug(Markers.CONFIG, "Message configuration " + DataFormatter.format(this) + " has been constructed.");
     }
 
     /**
@@ -52,17 +64,17 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
         }
     }
 
-    /**
-     * @param ROLE The role to search for.
-     * @return The emote that the role is bound to.
-     */
-    public String getEmote(long ROLE) {
-        if(terminated) return null;
-        synchronized(configuration) {
-            if(terminated) return null;
-            return configuration.get(ROLE);
-        }
-    }
+//    /**
+//     * @param ROLE The role to search for.
+//     * @return The emote that the role is bound to.
+//     */
+//    public String getEmote(long ROLE) {
+//        if(terminated) return null;
+//        synchronized(configuration) {
+//            if(terminated) return null;
+//            return configuration.get(ROLE);
+//        }
+//    }
 
     /**
      * Returns the role that is bound to the emote {@code EMOTE}, or null if such a role doesn't exist.
@@ -104,17 +116,17 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
         }
     }
 
-    /**
-     * @param ROLE The role to check.
-     * @return Whether or not the role is mapped.
-     */
-    public boolean isMapped(long ROLE) {
-        if(terminated) return false;
-        synchronized(configuration) {
-            if(terminated) return false;
-            return configuration.get(ROLE) != null;
-        }
-    }
+//    /**
+//     * @param ROLE The role to check.
+//     * @return Whether or not the role is mapped.
+//     */
+//    boolean isMapped(long ROLE) {
+//        if(terminated) return false;
+//        synchronized(configuration) {
+//            if(terminated) return false;
+//            return configuration.get(ROLE) != null;
+//        }
+//    }
 
     /**
      * @param EMOTE The emote to search for.
@@ -134,6 +146,15 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
     public void forEach(BiConsumer<Long, String> action) {
         synchronized(configuration) {
             configuration.forEach(action);
+        }
+    }
+
+    /**
+     * @see java.util.stream.Stream#anyMatch(Predicate)
+     */
+    boolean anyMatch(BiPredicate<? super Long, ? super String> predicate) {
+        synchronized(configuration) {
+            return configuration.entrySet().stream().anyMatch((e) -> predicate.test(e.getKey(), e.getValue()));
         }
     }
 
@@ -159,5 +180,6 @@ public class MessageConfiguration extends IdentifiableChild<ChannelConfiguration
         synchronized(configuration) {
             configuration.clear();
         }
+        log.debug(Markers.CONFIG, "Message configuration " + DataFormatter.format(this) + " has been terminated.");
     }
 }

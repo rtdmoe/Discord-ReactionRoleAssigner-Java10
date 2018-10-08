@@ -4,6 +4,7 @@ import moe.rtd.discord.roleassignerbot.command.CommandFilter;
 import moe.rtd.discord.roleassignerbot.config.BotSettings;
 import moe.rtd.discord.roleassignerbot.discord.DiscordConnection;
 import moe.rtd.discord.roleassignerbot.gui.GUI;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
 import org.apache.logging.log4j.Level;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -27,6 +28,15 @@ public class Main {
      */
     private static final Logger log;
 
+    /**
+     * Object for synchronizing the {@link #exit(int)} method.
+     */
+    private static final Object lockExit = new Object();
+    /**
+     * Whether or not {@link #exit(int)} has already been called.
+     */
+    private static volatile boolean exit = false;
+
     static { // Sets the system property for the Log4j log folder before initializing Log4j.
         String logFolder;
         boolean created;
@@ -43,7 +53,7 @@ public class Main {
         }
         System.setProperty("roleAssignerBot.logFolder", logFolder);
         log = LogManager.getLogger(Main.class);
-        log.debug("Log folder set to: \"" + logFolder + "\", folder has " + (created ? "" : "not ") + "been created.");
+        log.debug(Markers.MAIN, "Log folder set to: \"" + logFolder + "\", folder has " + (created ? "" : "not ") + "been created.");
     }
 
     /**
@@ -62,15 +72,14 @@ public class Main {
             switch(arg.toLowerCase()) {
                 case "debug":
                     Configurator.setRootLevel(Level.DEBUG);
-                    log.warn("Debugging mode activated.");
+                    log.warn(Markers.MAIN, "Debugging mode activated.");
                     break;
-                    default: log.warn("Argument \"" + arg.toLowerCase() + "\" has not been recognised.");
+                    default: log.warn(Markers.MAIN, "Argument \"" + arg.toLowerCase() + "\" has not been recognised.");
             }
         }
 
-        log.debug("Starting startup sequence...");
+        log.debug(Markers.MAIN, "Starting startup sequence...");
 
-        Runtime.getRuntime().addShutdownHook(new Thread(Main::exit)); // Sets up shutdown hook first in case the program exits before it is fully setup.
         Thread.setDefaultUncaughtExceptionHandler((t, e) -> {e.printStackTrace(); Runtime.getRuntime().halt(-1);}); // Program crashes on an uncaught exception.
 
         GUI.setup(); // Sets up the GUI.
@@ -84,55 +93,56 @@ public class Main {
             setup.notifyAll();
         }
 
-        log.debug("Setup complete, changing bot presence.");
+        log.debug(Markers.MAIN, "Setup complete, changing bot presence.");
 
         IDiscordClient dc = DiscordConnection.getClient();
         if(dc != null) dc.changePresence(StatusType.ONLINE, ActivityType.PLAYING, "with roles"); // Change bot presence to show that it's running.
 
-        log.info("Startup complete.");
+        log.info(Markers.MAIN, "Startup complete.");
     }
 
     /**
-     * Program's exit point method.
-     * Shuts down and saves everything in the correct order.
-     */
-    private static void exit() {
-
-        log.info("Starting shutdown sequence...");
-
-        while(!setup.get()) {
-            synchronized(setup) {
-                try {
-                    setup.wait(1000);
-                } catch (InterruptedException e) {
-                    log.fatal("Shutdown thread interrupted.", e);
-                }
-            }
-        }
-
-        BotSettings.stop(); // Stops the event handlers so that the event handling isn't interrupted by the closing connection.
-        CommandFilter.stop(); // Stops the command reactions and handler.
-        BotSettings.saveConfiguration(); // Saves the configuration to the save file.
-        BotSettings.destroy(); // Clears all loaded configuration data and stops any running threads in the process.
-        GUI.close(); // Closes the GUI.
-
-        log.info("Shutdown complete.");
-        LogManager.shutdown();
-    }
-
-    /**
-     * Shuts down the program normally.
+     * Shuts down the program.
      * @param status Status code to exit with.
      */
     public static void exit(int status) {
+        if(exit) return;
+        synchronized(lockExit) {
+            if(exit) return;
+            exit = true;
 
-        log.debug("Changing bot presence to shutting down...");
+            log.debug(Markers.MAIN, "Changing bot presence to shutting down...");
 
-        IDiscordClient dc = DiscordConnection.getClient();
-        if(dc != null) dc.changePresence(StatusType.DND, ActivityType.PLAYING, "shutting down..."); // Change bot presence to show that it's shutting down.
+            IDiscordClient dc = DiscordConnection.getClient();
+            if(dc != null) dc.changePresence(StatusType.DND, ActivityType.PLAYING, "shutting down..."); // Change bot presence to show that it's shutting down.
 
-        log.debug("Bot presence updated, exiting JVM with exit code " + status + ".");
+            log.debug(Markers.MAIN, "Bot presence updated, exiting JVM with exit code " + status + ".");
 
-        new Thread(() -> System.exit(status)).start(); // Exit with the specified status code.
+            var thread = new Thread(() -> {
+                log.info(Markers.MAIN, "Starting shutdown sequence...");
+
+                while(!setup.get()) {
+                    synchronized(setup) {
+                        try {
+                            setup.wait(1000);
+                        } catch (InterruptedException e) {
+                            log.fatal(Markers.MAIN, "Shutdown thread interrupted.", e);
+                        }
+                    }
+                }
+
+                BotSettings.stop(); // Stops the event handlers so that the event handling isn't interrupted by the closing connection.
+                CommandFilter.stop(); // Stops the command reactions and handler.
+                BotSettings.saveConfiguration(); // Saves the configuration to the save file.
+                BotSettings.destroy(); // Clears all loaded configuration data and stops any running threads in the process.
+                GUI.close(); // Closes the GUI.
+
+                log.info(Markers.MAIN, "Shutdown complete.");
+                LogManager.shutdown();
+                System.exit(status);
+            });
+
+            thread.start(); // Exit with the specified status code.
+        }
     }
 }

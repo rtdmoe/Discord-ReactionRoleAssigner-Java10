@@ -1,5 +1,7 @@
 package moe.rtd.discord.roleassignerbot.gui.javafx;
 
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
+import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.*;
 import org.apache.logging.log4j.core.appender.AbstractAppender;
 import org.apache.logging.log4j.core.config.plugins.Plugin;
@@ -18,7 +20,6 @@ import java.io.Serializable;
 @Plugin(name = "WebViewAppender", category = Core.CATEGORY_NAME, elementType = Appender.ELEMENT_TYPE)
 public final class WebViewAppender extends AbstractAppender {
 
-    @SuppressWarnings("unused")
     private WebViewAppender(String name, Filter filter, Layout layout) {
         super(name, filter, (layout == null) ? PatternLayout.createDefaultLayout() : layout, false);
     }
@@ -38,7 +39,7 @@ public final class WebViewAppender extends AbstractAppender {
         try {
             FXMain.logMessageQueue.put((layout == null) ? logEvent.getMessage().getFormattedMessage() : layout.toSerializable(logEvent).toString());
         } catch (InterruptedException e) {
-            e.printStackTrace();
+            LogManager.getLogger(WebViewAppender.class).error(Markers.JAVAFX, "Thread interrupted while waiting to queue message.", e);
         }
     }
 }

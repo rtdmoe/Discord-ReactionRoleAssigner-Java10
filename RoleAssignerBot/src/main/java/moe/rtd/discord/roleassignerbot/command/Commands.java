@@ -4,6 +4,9 @@ import javafx.util.Pair;
 import moe.rtd.discord.roleassignerbot.config.BotSettings;
 import moe.rtd.discord.roleassignerbot.config.MessageConfiguration;
 import moe.rtd.discord.roleassignerbot.config.ServerConfiguration;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.handle.obj.IChannel;
 import sx.blah.discord.handle.obj.Permissions;
@@ -204,6 +207,11 @@ enum Commands {
     });
 
     /**
+     * Log4j2 Logger for this class.
+     */
+    private static final Logger log = LogManager.getLogger(Commands.class);
+
+    /**
      * The command which corresponds to this instance.
      */
     private final Command command;
@@ -279,7 +287,7 @@ enum Commands {
      */
     String execute(MessageReceivedEvent e) throws CommandSyntaxException, RuntimeException {
         var s = getMessageCommand(e);
-        System.out.println("Executing command \"" + s + "\"."); // TODO replace with log4j
+        log.info(Markers.COMMAND, "Executing command \"" + s + "\".");
         checkSyntax(s);
         return getCommand().execute(e);
     }

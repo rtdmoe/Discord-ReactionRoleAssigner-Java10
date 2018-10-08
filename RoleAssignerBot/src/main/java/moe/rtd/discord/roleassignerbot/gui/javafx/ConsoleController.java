@@ -4,6 +4,7 @@ import javafx.application.Platform;
 import javafx.concurrent.Worker;
 import javafx.fxml.FXML;
 import javafx.scene.web.WebView;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
 import netscape.javascript.JSException;
 import org.apache.commons.text.StringEscapeUtils;
 import org.apache.logging.log4j.LogManager;
@@ -38,24 +39,24 @@ public class ConsoleController implements Runnable {
      */
     public ConsoleController() {
         synchronized(FXMain.lockConsole) {
-            if(FXMain.console != null) FXMain.console.stop();
+            if(FXMain.console != null) FXMain.console.terminate();
             FXMain.console = this;
         }
         thread = new Thread(this);
-        log.trace("JavaFX controller for console tab constructed.");
+        log.debug(Markers.JAVAFX, "Console controller constructed.");
     }
 
     /**
      * Initializes the controller.
      */
     @FXML private void initialize() {
-        log.debug("JavaFX console tab controller initializing.");
         webView.getEngine().load(getClass().getResource("/res/javafx/webview/console.html").toExternalForm());
         webView.getEngine().getLoadWorker().stateProperty().addListener((observable, oldState, newState) -> {
             if(newState == Worker.State.SUCCEEDED) {
                 thread.start();
             }
         });
+        log.debug(Markers.JAVAFX, "Console controller initialized.");
     }
 
     /**
@@ -67,7 +68,7 @@ public class ConsoleController implements Runnable {
             try {
                 message = FXMain.logMessageQueue.poll(1000, TimeUnit.MILLISECONDS);
             } catch (InterruptedException e) {
-                log.warn("WebView appender interrupted.");
+                log.warn(Markers.JAVAFX, "WebView appender interrupted.");
                 continue;
             }
             if(message != null) {
@@ -76,19 +77,19 @@ public class ConsoleController implements Runnable {
                         String cmd = "append(\"" + StringEscapeUtils.escapeEcmaScript(message) + "\");";
                         webView.getEngine().executeScript(cmd);
                     } catch(JSException jse) {
-                        log.error("JavaScript exception has occurred: ", jse);
+                        log.error(Markers.JAVAFX, "JavaScript exception has occurred: ", jse);
                     }
                 });
 
             }
         }
-        log.debug("WebView appender stopped.");
+        log.info(Markers.JAVAFX, "WebView appender stopped.");
     }
 
     /**
      * Stops this instance's thread.
      */
-    void stop() {
+    void terminate() {
         if(running) {
             synchronized(thread) {
                 running = false;
@@ -100,5 +101,6 @@ public class ConsoleController implements Runnable {
         } catch (InterruptedException e) {
             throw new RuntimeException("Thread interrupted while waiting for WebView appender to stop.", e);
         }
+        log.info(Markers.JAVAFX, "Console controller terminated.");
     }
 }

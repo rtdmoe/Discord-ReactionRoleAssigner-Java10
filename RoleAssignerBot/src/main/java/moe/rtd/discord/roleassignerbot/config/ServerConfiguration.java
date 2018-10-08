@@ -1,7 +1,11 @@
 package moe.rtd.discord.roleassignerbot.config;
 
+import moe.rtd.discord.roleassignerbot.misc.DataFormatter;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
 import moe.rtd.discord.roleassignerbot.reactions.ServerReactionFilter;
 import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.Serializable;
 import java.util.Arrays;
@@ -17,6 +21,11 @@ import java.util.stream.Collectors;
  * @author Big J
  */
 public class ServerConfiguration extends Identifiable implements Terminable {
+
+    /**
+     * Log4j2 Logger for this class.
+     */
+    private static final Logger log = LogManager.getLogger(ServerConfiguration.class);
 
     /**
      * Map of all channels on this server that the bot is configured for.
@@ -36,13 +45,6 @@ public class ServerConfiguration extends Identifiable implements Terminable {
      * Map of all of the bot properties for this server.
      */
     private final Map<Properties, Serializable> properties;
-
-    /**
-     * Used for breaking forEach loops.
-     * Kind of a hack, but meh.
-     * TODO remove this hack at some point
-     */
-    private static final class ForEachBreaker extends RuntimeException {private ForEachBreaker(){super();}}
 
     /**
      * Enum containing all properties and their default values.
@@ -81,6 +83,7 @@ public class ServerConfiguration extends Identifiable implements Terminable {
                 e -> e,
                 Properties::getDefaultValue)));
         this.reactionFilter = new ServerReactionFilter(this);
+        log.debug(Markers.CONFIG, "Server configuration " + DataFormatter.format(this) + " has been constructed.");
     }
 
     /**
@@ -154,7 +157,7 @@ public class ServerConfiguration extends Identifiable implements Terminable {
      * Removes a {@link ChannelConfiguration} from the channel map.
      * @param ID ID of the channel to remove.
      */
-    public void removeChannel(long ID) {
+    void removeChannel(long ID) {
         if(terminated) return;
         ChannelConfiguration channel;
         end: synchronized(channelConfigurations) {
@@ -179,14 +182,12 @@ public class ServerConfiguration extends Identifiable implements Terminable {
      * @return Whether or not the role is configured on this server.
      */
     public boolean isRoleConfigured(long ROLE) {
-        try {
-            forEach((cID, cc) -> cc.forEach((mID, mc) -> {
-                if(mc.isMapped(ROLE)) throw new ForEachBreaker();
-            }));
-        } catch(ForEachBreaker e) {
-            return true;
+        synchronized(channelConfigurations) {
+            return channelConfigurations.entrySet().stream()
+                    .anyMatch((e) -> e.getValue()
+                            .anyMatch((mID, mc) -> mc
+                                    .anyMatch((k, v) -> k.equals(ROLE))));
         }
-        return false;
     }
 
     /**
@@ -219,5 +220,6 @@ public class ServerConfiguration extends Identifiable implements Terminable {
             channelConfigurations.forEach((ID, channelConfiguration) -> channelConfiguration.terminate());
             channelConfigurations.clear();
         }
+        log.debug(Markers.CONFIG, "Server configuration " + DataFormatter.format(this) + " has been terminated.");
     }
 }

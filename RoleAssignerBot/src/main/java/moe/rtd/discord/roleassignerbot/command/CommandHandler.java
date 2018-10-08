@@ -1,5 +1,8 @@
 package moe.rtd.discord.roleassignerbot.command;
 
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sx.blah.discord.handle.impl.events.guild.channel.message.MessageReceivedEvent;
 import sx.blah.discord.util.RequestBuffer;
 
@@ -11,6 +14,11 @@ import java.util.concurrent.BlockingQueue;
  * @author Big J
  */
 class CommandHandler implements Runnable {
+
+    /**
+     * Log4j2 Logger for this class.
+     */
+    private static final Logger log = LogManager.getLogger(CommandHandler.class);
 
     /**
      * Queue for storing reaction events to be processed.
@@ -32,13 +40,12 @@ class CommandHandler implements Runnable {
      */
     @Override
     public void run() {
-        // TODO add log4j
-        System.out.println("Command handler starting.");
+        log.info(Markers.COMMAND, "Command handler has started.");
         while(!stopped) {
             MessageReceivedEvent e;
             try {
                 e = queue.take();
-                System.out.println("Handling command \"" + Integer.toHexString(e.getMessage().hashCode()).toUpperCase() + "\".");
+                log.debug(Markers.COMMAND, "Handling command \"" + Integer.toHexString(e.getMessage().hashCode()).toUpperCase() + "\".");
                 try {
                     var s = e.getMessage().getContent();
                     s = s.replace("<@" + e.getClient().getOurUser().getLongID() + ">", "");
@@ -58,7 +65,7 @@ class CommandHandler implements Runnable {
 
                     if(cmd == null) msg = "Command \"" + name + "\" does not exist.";
                     if(msg != null) {
-                        var m = msg;
+                        final var m = msg;
                         RequestBuffer.request(() -> {
                             e.getChannel().sendMessage(e.getAuthor().mention() + " " + m);
                         });
@@ -73,9 +80,10 @@ class CommandHandler implements Runnable {
                     });
                 }
             } catch(InterruptedException ie) {
-                ie.printStackTrace(); // TODO replace with log4j
+                log.warn(Markers.COMMAND, "Command handler has been interrupted.");
             }
         }
+        log.info(Markers.COMMAND, "Command handler has stopped.");
     }
 
     /**
@@ -85,8 +93,8 @@ class CommandHandler implements Runnable {
      */
     static void accept(MessageReceivedEvent messageReceivedEvent) throws InterruptedException {
         if(stopped) return;
-        System.out.println("Filtered command \"" +
-                Integer.toHexString(messageReceivedEvent.getMessage().hashCode()).toUpperCase() + "\"."); // TODO replace with log4j
+        log.debug(Markers.COMMAND, "Filtered command \"" +
+                Integer.toHexString(messageReceivedEvent.getMessage().hashCode()).toUpperCase() + "\".");
         queue.put(messageReceivedEvent);
     }
 
@@ -111,7 +119,7 @@ class CommandHandler implements Runnable {
             try {
                 thread.join();
             } catch(InterruptedException e) {
-                e.printStackTrace(); // TODO replace with log4j
+                log.fatal(Markers.COMMAND, "Thread interrupted while waiting for command handler to stop.", e);
             }
         }
     }

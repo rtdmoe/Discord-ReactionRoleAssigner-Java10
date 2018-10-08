@@ -4,6 +4,9 @@ import moe.rtd.discord.roleassignerbot.config.Identifiable;
 import moe.rtd.discord.roleassignerbot.interfaces.Terminable;
 import moe.rtd.discord.roleassignerbot.misc.DataFormatter;
 import moe.rtd.discord.roleassignerbot.interfaces.QueueConsumer;
+import moe.rtd.discord.roleassignerbot.misc.logging.Markers;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import sx.blah.discord.handle.impl.events.guild.channel.message.reaction.ReactionEvent;
 
 import java.util.concurrent.ArrayBlockingQueue;
@@ -14,6 +17,11 @@ import java.util.concurrent.BlockingQueue;
  * @author Big J
  */
 public abstract class ReactionFilter<O extends Identifiable> implements QueueConsumer<ReactionEvent>, Runnable, Terminable {
+
+    /**
+     * Log4j2 Logger for this class.
+     */
+    protected static final Logger log = LogManager.getLogger(ReactionFilter.class);
 
     /**
      * Queue for buffering reaction events.
@@ -50,22 +58,22 @@ public abstract class ReactionFilter<O extends Identifiable> implements QueueCon
      */
     @Override
     public final void run() {
-        System.out.println("Reaction reactions for " + DataFormatter.format(owner) + " has started."); // TODO replace with log4j
+        log.debug(Markers.REACTIONS, "Reaction filter for " + DataFormatter.format(owner) + " has started.");
         while(!terminated) {
             try {
                 filter(queue.take());
             } catch(InterruptedException e) {
-                System.out.println("Reaction reactions for " + DataFormatter.format(owner) + " has been interrupted."); // TODO replace with log4j
+                log.debug(Markers.REACTIONS, "Reaction filter for " + DataFormatter.format(owner) + " has been interrupted.");
                 if(terminated) break;
             }
         }
-        System.out.println("Reaction reactions for " + DataFormatter.format(owner) + " has been terminated."); // TODO replace with log4j
+        log.debug(Markers.REACTIONS, "Reaction filter for " + DataFormatter.format(owner) + " has been terminated.");
     }
 
     /**
      * Filter the reaction event.
      */
-    protected abstract void filter(ReactionEvent reactionEvent);
+    protected abstract void filter(ReactionEvent reactionEvent) throws InterruptedException;
 
     /**
      * Puts an event at the end of the queue.
@@ -81,7 +89,7 @@ public abstract class ReactionFilter<O extends Identifiable> implements QueueCon
     /**
      * @return The owner of this instance.
      */
-    public final O getOwner() {
+    final O getOwner() {
         return owner;
     }
 

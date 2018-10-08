@@ -6,7 +6,6 @@ package moe.rtd.discord.roleassignerbot.interfaces;
  */
 @FunctionalInterface
 public interface QueueConsumer<T> {
-
     /**
      * Puts the input argument into the back of the queue.
      * @param t The input argument.
