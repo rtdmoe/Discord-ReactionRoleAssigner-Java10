@@ -80,7 +80,7 @@ public class Main {
 
         log.debug(Markers.MAIN, "Starting startup sequence...");
 
-        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {e.printStackTrace(); Runtime.getRuntime().halt(-1);}); // Program crashes on an uncaught exception.
+        Thread.setDefaultUncaughtExceptionHandler((t, e) -> {e.printStackTrace(); System.exit(-3);}); // Program crashes on an uncaught exception.
 
         GUI.setup(); // Sets up the GUI.
         BotSettings.loadConfiguration(); // Loads the saved message configuration so that events aren't missed.

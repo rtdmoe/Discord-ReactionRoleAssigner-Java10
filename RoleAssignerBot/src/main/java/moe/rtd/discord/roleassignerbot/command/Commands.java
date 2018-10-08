@@ -168,9 +168,9 @@ enum Commands {
                 m.append(" is already configured for this message.");
                 continue;
             } if(mc.getParent().getParent().isRoleConfigured(p.getKey())) {
-                m.append("\n`\\@");
-                m.append(e.getGuild().getRoleByID(p.getKey()).getName());
-                m.append("` is already configured.");
+                m.append("\n");
+                m.append(e.getGuild().getRoleByID(p.getKey()).mention());
+                m.append(" is already configured.");
                 continue;
             }
             mc.setRole(p.getKey(), p.getValue());
