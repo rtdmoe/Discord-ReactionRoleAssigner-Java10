@@ -124,7 +124,17 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
                 var ROLE = dMessage.getGuild().getRoleByID(messageConfiguration.getRole(r.getEmoji().toString()));
                 // FOR EACH CONFIGURED REACTION:
 
+                if(ROLE == null) {
+                    log.warn(Markers.REACTIONS, "Role '" + messageConfiguration.getRole(r.getEmoji().toString()) + "' for " + r.getEmoji().toString() + " is null.");
+                    continue;
+                }
+
                 for(IUser u : r.getUsers()) {
+                    if(u == null) {
+                        log.warn("A reaction user is null.");
+                        continue;
+                    }
+
                     // ADD ALL MISSING ROLES
                     RequestBuffer.request(() -> {
                         try {
@@ -134,7 +144,7 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
                             }
                         } catch(Exception ex) {
                             if(ex instanceof RateLimitException) throw ex;
-                            log.error(Markers.REACTIONS, "Error adding role: " + ex.getMessage());
+                            log.error(Markers.REACTIONS, "Error adding role: ", ex);
                         }
                     });
                 }
@@ -149,7 +159,7 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
                             }
                         } catch(Exception ex) {
                             if(ex instanceof RateLimitException) throw ex;
-                            log.error(Markers.REACTIONS, "Error removing role: " + ex.getMessage());
+                            log.error(Markers.REACTIONS, "Error removing role: ", ex);
                         }
                     });
                 }
@@ -185,7 +195,7 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
                         log.debug(Markers.REACTIONS, "Added role: " + ROLE.mention() + " to " + e.getUser().mention());
                     } catch(Exception ex) {
                         if(ex instanceof RateLimitException) throw ex;
-                        log.error(Markers.REACTIONS, "Error adding role: " + ex.getMessage());
+                        log.error(Markers.REACTIONS, "Error adding role: ", ex);
                     }
                 });
             }
@@ -205,7 +215,7 @@ public class ReactionHandler implements QueueConsumer<ReactionEvent>, Runnable, 
                         log.debug(Markers.REACTIONS, "Removed role: " + ROLE.mention() + " from " + e.getUser().mention());
                     } catch(Exception ex) {
                         if(ex instanceof RateLimitException) throw ex;
-                        log.error(Markers.REACTIONS, "Error removing role: " + ex.getMessage());
+                        log.error(Markers.REACTIONS, "Error removing role: ", ex);
                     }
                 });
             }
